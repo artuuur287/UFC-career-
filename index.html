@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>UFC Career</title>
+
+<style>
+
+body {
+    background:#111;
+    color:white;
+    font-family:Arial, sans-serif;
+    text-align:center;
+    padding-top:40px;
+}
+
+h1 {
+    font-size:42px;
+    margin-bottom:25px;
+}
+
+p {
+    font-size:22px;
+    margin:20px;
+}
+
+button {
+    font-size:22px;
+    padding:15px 30px;
+    margin:10px;
+    background:#d00000;
+    color:white;
+    border:none;
+    border-radius:10px;
+}
+
+input {
+    font-size:22px;
+    padding:12px;
+    width:80%;
+    border-radius:8px;
+}
+
+.hidden {
+    display:none;
+}
+
+.card {
+    background:#222;
+    padding:25px;
+    margin:20px;
+    border-radius:15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div id="start">
+
+<h1>🥊 UFC Career</h1>
+
+<p>Создай своего бойца и начни путь к чемпионскому поясу!</p>
+
+<button onclick="startGame()">
+Начать карьеру
+</button>
+
+</div>
+
+
+
+<div id="nameScreen" class="hidden">
+
+<h1>Создание бойца</h1>
+
+<p>Введите имя:</p>
+
+<input id="fighterName" placeholder="Имя">
+
+<br>
+
+<button onclick="showWeights()">
+Далее
+</button>
+
+</div>
+
+
+
+<div id="weightScreen" class="hidden">
+
+<h1>Выбери вес</h1>
+
+<button onclick="createFighter('Лёгкий вес','72 кг')">
+🥊 Лёгкий<br>72 кг
+</button>
+
+<br>
+
+<button onclick="createFighter('Средний вес','84 кг')">
+🥊 Средний<br>84 кг
+</button>
+
+<br>
+
+<button onclick="createFighter('Тяжёлый вес','96 кг')">
+🥊 Тяжёлый<br>96 кг
+</button>
+
+</div>
+
+
+
+<div id="profile" class="hidden">
+
+<div class="card">
+
+<h1>🥊 Боец</h1>
+
+<p id="fighterNameText"></p>
+
+<p id="fighterWeight"></p>
+
+<p>Рейтинг в дивизионе: #15</p>
+
+<p>Рекорд: 10-0</p>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+let name;
+
+
+function startGame(){
+
+document.getElementById("start").style.display="none";
+document.getElementById("nameScreen").style.display="block";
+
+}
+
+
+
+function showWeights(){
+
+name=document.getElementById("fighterName").value;
+
+if(name==""){
+alert("Введите имя!");
+return;
+}
+
+document.getElementById("nameScreen").style.display="none";
+document.getElementById("weightScreen").style.display="block";
+
+}
+
+
+
+function createFighter(weight,kg){
+
+document.getElementById("weightScreen").style.display="none";
+document.getElementById("profile").style.display="block";
+
+document.getElementById("fighterNameText").innerHTML=
+"Имя: 🥊 " + name;
+
+document.getElementById("fighterWeight").innerHTML=
+"Вес: " + weight + " (" + kg + ")";
+
+}
+
+</script>
+
+
+</body>
+</html>
