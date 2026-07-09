@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>UFC Career</title>
+
+
+<style>
+
+body{
+margin:0;
+background:#000;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+
+.hidden{
+display:none;
+}
+
+
+.topBar{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:#111;
+padding:8px;
+z-index:1000;
+display:flex;
+justify-content:center;
+gap:8px;
+flex-wrap:wrap;
+
+}
+
+
+.stat{
+
+background:#222;
+padding:6px;
+border-radius:8px;
+
+}
+
+
+.menuButton{
+
+position:fixed;
+top:0;
+left:0;
+background:red;
+color:white;
+border:0;
+padding:10px;
+z-index:2000;
+
+}
+
+
+
+.screen{
+
+padding-top:100px;
+padding-bottom:120px;
+min-height:100vh;
+
+}
+
+
+
+button{
+
+background:#d00000;
+color:white;
+border:0;
+border-radius:10px;
+padding:12px 20px;
+font-size:18px;
+margin:10px;
+
+}
+
+
+input{
+
+padding:10px;
+font-size:20px;
+
+}
+
+
+
+.building{
+
+display:inline-block;
+width:170px;
+margin:15px;
+
+}
+
+
+
+.building img{
+
+width:170px;
+height:120px;
+object-fit:cover;
+border-radius:15px;
+
+}
+
+
+
+.weekBar{
+
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#111;
+padding:10px;
+z-index:1000;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+<button id="menuBtn"
+class="menuButton hidden"
+onclick="goMenu()">
+
+☰
+
+</button>
+
+
+
+
+<div id="topBar" class="topBar hidden">
+
+
+<div class="stat">
+⚖ <span id="weight">0</span> кг
+</div>
+
+
+<div class="stat">
+🔥 <span id="ready">20</span>/100
+</div>
+
+
+<div class="stat">
+📢 <span id="hype">0</span>/100
+</div>
+
+
+<div class="stat">
+🤝 <span id="kind">10</span>/100
+</div>
+
+
+</div>
+
+
+
+
+
+<div id="weekBar" class="weekBar hidden">
+
+Неделя:
+<span id="week">1</span>
+
+|
+
+Месяц:
+<span id="month">1</span>
+
+
+<br>
+
+
+<button onclick="skipWeek()">
+
+Скип недели
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<div id="start" class="screen">
+
+
+<h1>
+🥊 UFC Career
+</h1>
+
+
+<p>
+Введите имя бойца
+</p>
+
+
+<input id="fighterName">
+
+
+<br>
+
+
+<button onclick="chooseWeight()">
+
+Начать карьеру
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+<div id="weights" class="screen hidden">
+
+
+<h1>
+Выбери вес
+</h1>
+
+
+<button onclick="createFighter('Лёгкий вес',72)">
+
+Лёгкий вес<br>
+72 кг
+
+</button>
+
+
+<br>
+
+
+<button onclick="createFighter('Средний вес',84)">
+
+Средний вес<br>
+84 кг
+
+</button>
+
+
+<br>
+
+
+<button onclick="createFighter('Тяжёлый вес',96)">
+
+Тяжёлый вес<br>
+96 кг
+
+</button>
+
+
+  </div>
+  <!-- ГЛАВНОЕ МЕНЮ -->
+
+
+<div id="menu" class="screen hidden">
+
+
+<h1>
+🥊 UFC Career
+</h1>
+
+
+<p>
+Выберите здание
+</p>
+
+
+
+<div class="building" onclick="openArena()">
+
+<img src="Picsart_26-07-09_22-31-29-952.png">
+
+<p>🏟 Арена</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openOffice()">
+
+<img src="Picsart_26-07-09_22-32-22-084.png">
+
+<p>🏢 Офис UFC</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openDiet()">
+
+<img src="Picsart_26-07-09_22-35-49-924.png">
+
+<p>🥗 Диетолог</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openTraining()">
+
+<img src="Picsart_26-07-09_22-39-09-677.png">
+
+<p>🏋️ Тренировки</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openPress()">
+
+<img src="Picsart_26-07-09_22-26-31-289.png">
+
+<p>🎤 Пресс-конференция</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openSettings()">
+
+<p style="font-size:60px">
+⚙️
+</p>
+
+<p>
+Настройки
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ОФИС -->
+
+
+<div id="office" class="screen hidden">
+
+
+<h1>
+🏢 Офис UFC
+</h1>
+
+
+<button onclick="openProfile()">
+
+Профиль бойца
+
+</button>
+
+
+<br>
+
+
+<button onclick="openHistory()">
+
+История боёв
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ПРОФИЛЬ -->
+
+
+<div id="profile" class="screen hidden">
+
+
+<h1>
+🥊 Профиль бойца
+</h1>
+
+
+<h2 id="profileName">
+</h2>
+
+
+<p id="profileDivision">
+</p>
+
+
+<p>
+Рекорд:
+<span id="record">
+10-0
+</span>
+</p>
+
+
+<p>
+Рейтинг:
+<span id="rank">
+#15
+</span>
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ИСТОРИЯ -->
+
+
+<div id="history" class="screen hidden">
+
+
+<h1>
+📜 История боёв
+</h1>
+
+
+<p>
+Боёв пока нет
+</p>
+
+
+<div id="fightHistory">
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- НАСТРОЙКИ -->
+
+
+<div id="settings" class="screen hidden">
+
+
+<h1>
+⚙️ Настройки
+</h1>
+
+
+<button onclick="deleteCareer()">
+
+🗑 Удалить карьеру
+
+</button>
+
+
+</div>
+<!-- ГЛАВНОЕ МЕНЮ -->
+
+
+<div id="menu" class="screen hidden">
+
+
+<h1>
+🥊 UFC Career
+</h1>
+
+
+<p>
+Выберите здание
+</p>
+
+
+
+<div class="building" onclick="openArena()">
+
+<img src="Picsart_26-07-09_22-31-29-952.png">
+
+<p>🏟 Арена</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openOffice()">
+
+<img src="Picsart_26-07-09_22-32-22-084.png">
+
+<p>🏢 Офис UFC</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openDiet()">
+
+<img src="Picsart_26-07-09_22-35-49-924.png">
+
+<p>🥗 Диетолог</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openTraining()">
+
+<img src="Picsart_26-07-09_22-39-09-677.png">
+
+<p>🏋️ Тренировки</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openPress()">
+
+<img src="Picsart_26-07-09_22-26-31-289.png">
+
+<p>🎤 Пресс-конференция</p>
+
+</div>
+
+
+
+
+<div class="building" onclick="openSettings()">
+
+<p style="font-size:60px">
+⚙️
+</p>
+
+<p>
+Настройки
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ОФИС -->
+
+
+<div id="office" class="screen hidden">
+
+
+<h1>
+🏢 Офис UFC
+</h1>
+
+
+<button onclick="openProfile()">
+
+Профиль бойца
+
+</button>
+
+
+<br>
+
+
+<button onclick="openHistory()">
+
+История боёв
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ПРОФИЛЬ -->
+
+
+<div id="profile" class="screen hidden">
+
+
+<h1>
+🥊 Профиль бойца
+</h1>
+
+
+<h2 id="profileName">
+</h2>
+
+
+<p id="profileDivision">
+</p>
+
+
+<p>
+Рекорд:
+<span id="record">
+10-0
+</span>
+</p>
+
+
+<p>
+Рейтинг:
+<span id="rank">
+#15
+</span>
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ИСТОРИЯ -->
+
+
+<div id="history" class="screen hidden">
+
+
+<h1>
+📜 История боёв
+</h1>
+
+
+<p>
+Боёв пока нет
+</p>
+
+
+<div id="fightHistory">
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- НАСТРОЙКИ -->
+
+
+<div id="settings" class="screen hidden">
+
+
+<h1>
+⚙️ Настройки
+</h1>
+
+
+<button onclick="deleteCareer()">
+
+🗑 Удалить карьеру
+
+</button>
+
+
+  </div>
+  <!-- АРЕНА -->
+
+<div id="arena" class="screen hidden">
+
+
+<h1>
+🏟 Арена боёв
+</h1>
+
+
+<button onclick="showDivision('light')">
+Лёгкий вес
+</button>
+
+
+<button onclick="showDivision('middle')">
+Средний вес
+</button>
+
+
+<button onclick="showDivision('heavy')">
+Тяжёлый вес
+</button>
+
+
+<h2 id="divisionTitle"></h2>
+
+
+<div id="fightersList">
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- СОПЕРНИК -->
+
+<div id="fighterCard" class="screen hidden">
+
+
+<h1 id="enemyName"></h1>
+
+
+<p id="enemyRank"></p>
+
+
+<p id="enemyRecord"></p>
+
+
+<button onclick="challenge()">
+
+Вызвать на бой
+
+</button>
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+let player={
+
+name:"",
+division:"",
+weight:0,
+rank:15,
+record:"10-0"
+
+};
+
+
+
+let divisions={
+
+
+light:{
+
+name:"Лёгкий вес",
+
+limit:72,
+
+
+champion:"Justin Gaethje",
+
+
+fighters:[
+
+{name:"Arman Tsarukyan",rank:1,record:"22-3"},
+
+{name:"Charles Oliveira",rank:2,record:"35-10"},
+
+{name:"Max Holloway",rank:3,record:"26-8"},
+
+{name:"Dustin Poirier",rank:4,record:"30-9"},
+
+{name:"Justin Gaethje",rank:5,record:"25-5"},
+
+{name:"Mateusz Gamrot",rank:6,record:"25-2"},
+
+{name:"Beneil Dariush",rank:7,record:"22-6"},
+
+{name:"Rafael Fiziev",rank:8,record:"12-3"},
+
+{name:"Dan Hooker",rank:9,record:"24-12"},
+
+{name:"Jalin Turner",rank:10,record:"14-8"},
+
+{name:"Bobby Green",rank:11,record:"32-15"},
+
+{name:"Paddy Pimblett",rank:12,record:"23-3"},
+
+{name:"Renato Moicano",rank:13,record:"20-5"},
+
+{name:"Drew Dober",rank:14,record:"27-13"}
+
+]
+
+},
+
+
+
+
+middle:{
+
+name:"Средний вес",
+
+limit:84,
+
+champion:"Dricus Du Plessis",
+
+fighters:[
+
+{name:"Khamzat Chimaev",rank:1,record:"14-0"},
+
+{name:"Israel Adesanya",rank:2,record:"24-4"},
+
+{name:"Robert Whittaker",rank:3,record:"26-8"},
+
+{name:"Sean Strickland",rank:4,record:"29-6"},
+
+{name:"Jared Cannonier",rank:5,record:"17-7"},
+
+{name:"Marvin Vettori",rank:6,record:"19-7"},
+
+{name:"Paulo Costa",rank:7,record:"15-4"},
+
+{name:"Roman Dolidze",rank:8,record:"13-3"},
+
+{name:"Brendan Allen",rank:9,record:"24-5"},
+
+{name:"Jack Hermansson",rank:10,record:"23-8"},
+
+{name:"Michel Pereira",rank:11,record:"31-11"},
+
+{name:"Chris Curtis",rank:12,record:"31-11"},
+
+{name:"Kelvin Gastelum",rank:13,record:"18-9"},
+
+{name:"Roman Kopylov",rank:14,record:"13-3"}
+
+]
+
+},
+
+
+
+
+
+heavy:{
+
+name:"Тяжёлый вес",
+
+limit:96,
+
+champion:"Tom Aspinall",
+
+fighters:[
+
+
+{name:"Ciryl Gane",rank:1,record:"12-2"},
+
+{name:"Alexander Volkov",rank:2,record:"38-10"},
+
+{name:"Sergei Pavlovich",rank:3,record:"18-2"},
+
+{name:"Curtis Blaydes",rank:4,record:"18-5"},
+
+{name:"Jailton Almeida",rank:5,record:"21-3"},
+
+{name:"Derrick Lewis",rank:6,record:"28-12"},
+
+{name:"Tai Tuivasa",rank:7,record:"15-7"},
+
+{name:"Marcin Tybura",rank:8,record:"25-8"},
+
+{name:"Jhonata Diniz",rank:9,record:"7-0"},
+
+{name:"Almeida Junior",rank:10,record:"10-2"},
+
+{name:"Romanov",rank:11,record:"17-3"},
+
+{name:"Waldo Cortes",rank:12,record:"11-1"},
+
+{name:"Martin Buday",rank:13,record:"14-2"},
+
+{name:"Austen Lane",rank:14,record:"12-4"}
+
+]
+
+}
+
+
+};
+
+
+
+
+
+let selectedEnemy=null;
+
+
+
+function showDivision(type){
+
+
+hideAll();
+
+
+document.getElementById("arena").classList.remove("hidden");
+
+
+let div=divisions[type];
+
+
+document.getElementById("divisionTitle").innerHTML=
+
+div.name+
+"<br>🏆 Чемпион: "+
+div.champion;
+
+
+
+let box=document.getElementById("fightersList");
+
+box.innerHTML="";
+
+
+
+div.fighters.forEach(function(f){
+
+
+let b=document.createElement("button");
+
+
+b.innerHTML=
+
+"#"+f.rank+" "+
+f.name;
+
+
+
+b.onclick=function(){
+
+
+selectedEnemy=f;
+
+
+showEnemy();
+
+
+};
+
+
+
+box.appendChild(b);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+function showEnemy(){
+
+
+hideAll();
+
+
+document.getElementById("fighterCard").classList.remove("hidden");
+
+
+document.getElementById("enemyName").innerHTML=
+
+selectedEnemy.name;
+
+
+document.getElementById("enemyRank").innerHTML=
+
+"Рейтинг #"+selectedEnemy.rank;
+
+
+document.getElementById("enemyRecord").innerHTML=
+
+"Рекорд "+selectedEnemy.record;
+
+
+
+}
+
+
+
+
+
+
+
+function challenge(){
+
+
+if(selectedEnemy){
+
+
+alert(
+"Можно провести бой против "+selectedEnemy.name
+);
+
+
+}
+
+
+}
+
+
+
+</script>
+
+<!-- ДИЕТА -->
+
+
+<div id="diet" class="screen hidden">
+
+
+<h1>
+🥗 Диетолог
+</h1>
+
+
+<p>
+Текущий вес:
+<span id="dietWeight">
+0
+</span>
+кг
+</p>
+
+
+<button onclick="dietAction()">
+
+Диета (-2 кг)
+
+</button>
+
+
+</div>
+
+
+
+
+
+<!-- ТРЕНИРОВКИ -->
+
+
+<div id="training" class="screen hidden">
+
+
+<h1>
+🏋️ Тренировки
+</h1>
+
+
+<p>
+Бокс:
+<span id="boxing">
+0
+</span>/100
+</p>
+
+
+<button onclick="trainBoxing()">
+
+Тренировать бокс
+
+</button>
+
+
+
+<p>
+Борьба:
+<span id="wrestling">
+0
+</span>/100
+</p>
+
+
+<button onclick="trainWrestling()">
+
+Тренировать борьбу
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+<!-- ПРЕСС-КОНФЕРЕНЦИЯ -->
+
+
+<div id="press" class="screen hidden">
+
+
+<h1>
+🎤 Пресс-конференция
+</h1>
+
+
+<div id="pressChoices">
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+let ready=20;
+
+let hype=0;
+
+let kindness=10;
+
+
+let currentWeek=1;
+
+let currentMonth=1;
+
+
+let usedAction=false;
+
+
+
+
+let pressData={
+
+
+1:[
+
+{
+text:"Он не боец, он просто мешок",
+hype:20,
+kind:-20
+},
+
+
+{
+text:"Какой бы не был исход, я будущий чемпион",
+hype:5,
+kind:0
+},
+
+
+{
+text:"Он сильный боец и хороший парень",
+hype:-20,
+kind:20
+}
+
+],
+
+
+
+
+2:[
+
+{
+text:"Ха-ха, кто-то думает что он сильный?",
+hype:20,
+kind:-20
+},
+
+
+{
+text:"Зададим жару, сделаем яркий бой",
+hype:5,
+kind:0
+},
+
+
+{
+text:"Желаю удачи ему",
+hype:-20,
+kind:20
+}
+
+],
+
+
+
+
+3:[
+
+{
+text:"Да ты лох, у тебя нулевая борьба и бокс",
+hype:20,
+kind:-20
+},
+
+
+{
+text:"Он сильный соперник, но я выиграю",
+hype:5,
+kind:0
+},
+
+
+{
+text:"Уважаю его и его команду",
+hype:-20,
+kind:20
+}
+
+]
+
+};
+
+
+
+
+
+
+
+function openTraining(){
+
+hideAll();
+
+document.getElementById("training").classList.remove("hidden");
+
+}
+
+
+
+
+function openDiet(){
+
+hideAll();
+
+document.getElementById("diet").classList.remove("hidden");
+
+updateStats();
+
+}
+
+
+
+
+
+function openPress(){
+
+hideAll();
+
+document.getElementById("press").classList.remove("hidden");
+
+
+let box=document.getElementById("pressChoices");
+
+
+box.innerHTML="";
+
+
+pressData[currentWeek] .forEach(function(c){
+
+
+let b=document.createElement("button");
+
+
+b.innerHTML=c.text;
+
+
+b.onclick=function(){
+
+
+if(usedAction){
+
+showInfo(
+"⚠️ Нельзя",
+"Ты уже сделал действие этой недели"
+);
+
+return;
+
+}
+
+
+
+hype+=c.hype;
+
+kindness+=c.kind;
+
+
+usedAction=true;
+
+
+updateStats();
+
+
+};
+
+
+box.appendChild(b);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+function dietAction(){
+
+
+if(usedAction){
+
+showInfo(
+"⚠️ Диетолог недоступен",
+"Ты уже сделал действие недели"
+);
+
+return;
+
+}
+
+
+player.weight-=2;
+
+
+usedAction=true;
+
+
+updateStats();
+
+
+}
+
+
+
+
+
+
+function trainBoxing(){
+
+
+if(usedAction){
+
+showInfo(
+"⚠️ Тренировка недоступна",
+"Сначала дождись новой недели"
+);
+
+return;
+
+}
+
+
+let b=
+Number(document.getElementById("boxing").innerHTML);
+
+
+b+=5;
+
+
+if(b>100)b=100;
+
+
+document.getElementById("boxing").innerHTML=b;
+
+
+ready+=5;
+
+
+usedAction=true;
+
+
+updateStats();
+
+
+}
+
+
+
+
+
+
+
+function trainWrestling(){
+
+
+if(usedAction){
+
+showInfo(
+"⚠️ Тренировка недоступна",
+"Сначала дождись новой недели"
+);
+
+return;
+
+}
+
+
+let w=
+Number(document.getElementById("wrestling").innerHTML);
+
+
+w+=5;
+
+
+if(w>100)w=100;
+
+
+document.getElementById("wrestling").innerHTML=w;
+
+
+ready+=5;
+
+
+usedAction=true;
+
+
+updateStats();
+
+
+}
+
+
+
+
+
+
+
+function showInfo(title,text){
+
+alert(
+title+
+"\n\n"+
+text
+);
+
+}
+
+
+
+
+
+
+
+function updateStats(){
+
+
+document.getElementById("weight").innerHTML=
+player.weight;
+
+
+document.getElementById("ready").innerHTML=
+ready;
+
+
+document.getElementById("hype").innerHTML=
+hype;
+
+
+document.getElementById("kind").innerHTML=
+kindness;
+
+
+document.getElementById("dietWeight").innerHTML=
+player.weight;
+
+
+}
+  
+<script>
+
+
+// СОЗДАНИЕ БОЙЦА
+
+
+function chooseWeight(){
+
+
+let name=
+document.getElementById("fighterName").value;
+
+
+if(name==""){
+
+alert("Введите имя");
+
+return;
+
+}
+
+
+document.getElementById("start").classList.add("hidden");
+
+document.getElementById("weights").classList.remove("hidden");
+
+
+}
+
+
+
+
+
+function createFighter(weightName,weight){
+
+
+player.name=
+document.getElementById("fighterName").value;
+
+
+player.division=
+weightName;
+
+
+player.weight=
+weight;
+
+
+
+document.getElementById("weights").classList.add("hidden");
+
+
+document.getElementById("menu").classList.remove("hidden");
+
+
+document.getElementById("topBar").classList.remove("hidden");
+
+
+document.getElementById("weekBar").classList.remove("hidden");
+
+
+document.getElementById("menuBtn").classList.remove("hidden");
+
+
+
+document.getElementById("profileName").innerHTML=
+player.name;
+
+
+document.getElementById("profileDivision").innerHTML=
+weightName;
+
+
+
+updateStats();
+
+
+saveGame();
+
+
+}
+
+
+
+
+
+
+
+
+// НЕДЕЛЯ
+
+
+function skipWeek(){
+
+
+if(!usedAction){
+
+showInfo(
+"⚠️ Неделя не закончена",
+"Сначала сделай одно действие"
+);
+
+return;
+
+}
+
+
+
+currentWeek++;
+
+
+usedAction=false;
+
+
+// вес растёт
+
+player.weight+=1;
+
+
+
+if(currentWeek>4){
+
+currentWeek=1;
+
+currentMonth++;
+
+}
+
+
+
+
+updateStats();
+
+saveGame();
+
+
+}
+
+
+
+
+
+// КАРДЫ UFC
+
+
+function currentCard(){
+
+
+return 328+currentMonth;
+
+}
+
+
+
+
+let selectedCard=null;
+
+
+function chooseCard(){
+
+
+let cards="";
+
+
+for(let i=currentCard();i<=350;i++){
+
+
+cards+="UFC "+i+"\n";
+
+
+}
+
+
+
+selectedCard=prompt(
+"Выбери кард:\n\n"+
+cards
+);
+
+
+}
+
+
+
+
+
+
+
+
+// ПРОВЕРКА ВЕСА
+
+
+function weighIn(){
+
+
+let limit=72;
+
+
+
+if(player.division=="Средний вес")
+limit=84;
+
+
+if(player.division=="Тяжёлый вес")
+limit=96;
+
+
+
+
+if(player.weight>limit){
+
+
+hype-=10;
+
+ready-=10;
+
+kindness-=5;
+
+
+if(hype<0)hype=0;
+
+
+showInfo(
+"⚠️ Бой отменён",
+"Ты не сделал вес"
+);
+
+
+
+updateStats();
+
+
+return false;
+
+
+}
+
+
+return true;
+
+
+}
+
+
+
+
+
+
+
+
+// РЕЗУЛЬТАТ БОЯ
+
+
+function fightResult(){
+
+
+if(!weighIn()){
+
+return;
+
+}
+
+
+
+let chance=50;
+
+
+chance+=ready/5;
+
+
+chance+=hype/10;
+
+
+
+let random=Math.random()*100;
+
+
+
+if(random<chance){
+
+
+
+showInfo(
+"🏆 ПОБЕДА",
+"Ты выиграл бой!"
+);
+
+
+
+player.record="11-0";
+
+
+hype+=10;
+
+
+
+}else{
+
+
+showInfo(
+"❌ ПОРАЖЕНИЕ",
+"Ты проиграл бой"
+);
+
+
+hype-=5;
+
+
+}
+
+
+
+
+updateStats();
+
+
+}
+
+
+
+
+
+
+
+
+// ОФИС
+
+
+function openProfile(){
+
+hideAll();
+
+document.getElementById("profile").classList.remove("hidden");
+
+}
+
+
+
+
+function openOffice(){
+
+hideAll();
+
+document.getElementById("office").classList.remove("hidden");
+
+}
+
+
+
+function openHistory(){
+
+hideAll();
+
+document.getElementById("history").classList.remove("hidden");
+
+}
+
+
+
+
+function openSettings(){
+
+hideAll();
+
+document.getElementById("settings").classList.remove("hidden");
+
+}
+
+
+
+
+
+
+
+function deleteCareer(){
+
+
+let a=confirm(
+"Удалить всю карьеру?"
+);
+
+
+if(a){
+
+
+localStorage.removeItem("ufcCareer");
+
+
+location.reload();
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+// МЕНЮ
+
+
+function goMenu(){
+
+hideAll();
+
+document.getElementById("menu").classList.remove("hidden");
+
+}
+
+
+
+
+
+function hideAll(){
+
+
+document.querySelectorAll(".screen").forEach(function(s){
+
+s.classList.add("hidden");
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// СОХРАНЕНИЕ
+
+
+function saveGame(){
+
+
+localStorage.setItem(
+"ufcCareer",
+JSON.stringify({
+
+player:player,
+
+ready:ready,
+
+hype:hype,
+
+kindness:kindness,
+
+week:currentWeek,
+
+month:currentMonth
+
+})
+
+);
+
+
+}
+
+
+
+
+
+
+
+function loadGame(){
+
+
+let save=
+localStorage.getItem("ufcCareer");
+
+
+
+if(save){
+
+
+let data=JSON.parse(save);
+
+
+
+player=data.player;
+
+ready=data.ready;
+
+hype=data.hype;
+
+kindness=data.kindness;
+
+currentWeek=data.week;
+
+currentMonth=data.month;
+
+
+
+updateStats();
+
+
+}
+
+
+
+}
+
+
+
+loadGame();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
