@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFC Career Manager</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #e50914;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .screen {
+            display: none;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .card {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .building-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #b8070f;
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        #battle-log {
+            background: #000;
+            padding: 15px;
+            border-radius: 6px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            border: 1px solid #444;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .log-commentary { color: #00ff00; }
+        .log-hit { color: #ff3333; }
+        .log-miss { color: #aaaaaa; }
+        .log-system { color: #ffff00; font-weight: bold; }
+        .log-finish { color: #ff00ff; font-weight: bold; font-size: 1.1rem; }
+
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UFC Career Manager</h1>
+        
+        <div class="stats-panel">
+            <div class="stat-box"><div>Боец</div><div class="stat-val" id="stat-name">Джон Джонс</div></div>
+            <div class="stat-box"><div>Рекорд</div><div class="stat-val" id="stat-record">0-0</div></div>
+            <div class="stat-box"><div>Рейтинг</div><div class="stat-val" id="stat-rank">Вне рейтинга</div></div>
+            <div class="stat-box"><div>Деньги</div><div class="stat-val" id="stat-money">$1000</div></div>
+            <div class="stat-box"><div>Энергия</div><div class="stat-val" id="stat-energy">100%</div></div>
+        </div>
+
+        <div id="screen-gym" class="screen active">
+            <h2>Тренировочный лагерь</h2>
+            <p>Улучшайте навыки бойца перед выходом в октагон. Каждая тренировка тратит энергию.</p>
+            <div class="grid">
+                <div class="card">
+                    <div class="building-img" id="img-striking">🥊</div>
+                    <h3>Ударная техника</h3>
+                    <p>Стойка, комбинации, сила удара</p>
+                    <div id="skill-striking">Уровень: 10</div>
+                    <button onclick="train('striking')">Тренироваться (-20 Энергии)</button>
+                </div>
+                <div class="card">
+                    <div class="building-img" id="img-wrestling">🏟️</div>
+                    <h3>Борьба и Грэпплинг</h3>
+                    <p>Тейкдауны, защита, сабмишены</p>
+                    <div id="skill-wrestling">Уровень: 10</div>
+                    <button onclick="train('wrestling')">Тренироваться (-20 Энергии)</button>
+                </div>
+                <div class="card">
+                    <div class="building-img" id="img-recovery">🍏</div>
+                    <h3>Восстановление</h3>
+                    <p>Сон, массаж и правильное питание</p>
+                    <button onclick="recover()">Отдохнуть (+50 Энергии)</button>
+                </div>
+            </div>
+  </div>
+          <div id="screen-fight" class="screen">
+            <h2>Октагон</h2>
+            
+            <div id="fight-preparation">
+                <h3>Следующий соперник</h3>
+                <div class="card" style="max-width: 400px; margin: 0 auto;">
+                    <div class="building-img">🎙️</div>
+                    <h4 id="enemy-name">Хабиб Нурмагомедов</h4>
+                    <p id="enemy-stats">Ударка: 12 | Борьба: 18</p>
+                    <p id="fight-reward">Гонорар за бой: $500</p>
+                    <button onclick="startFight()">Выйти на бой!</button>
+                </div>
+            </div>
+
+            <div id="fight-zone" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="text-align: left;">
+                        <strong id="fighter-hud-name">Вы</strong><br>
+                        HP: <span id="fighter-hp" style="color: #00ff00; font-weight: bold;">100</span>
+                    </div>
+                    <div style="font-size: 1.5rem; color: var(--accent-color); font-weight: bold;">VS</div>
+                    <div style="text-align: right;">
+                        <strong id="enemy-hud-name">Соперник</strong><br>
+                        HP: <span id="enemy-hp" style="color: #00ff00; font-weight: bold;">100</span>
+                    </div>
+                </div>
+                <div id="battle-log"></div>
+                <button id="next-round-btn" onclick="playRound()" style="display: none;">Следующий раунд</button>
+                <button id="close-fight-btn" onclick="finishFight()" style="display: none;">Покинуть октагон</button>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button onclick="showScreen('gym')">Зал</button>
+            <button onclick="showScreen('fight')">Бой</button>
+        </div>
+    </div>
+
+    <script>
+        // Состояние игрока
+        let player = {
+            name: "Джон Джонс",
+            striking: 10,
+            wrestling: 10,
+            money: 1000,
+            energy: 100,
+            wins: 0,
+            losses: 0,
+            rank: 16 // 16 означает "Вне рейтинга"
+        };
+
+        // База данных потенциальных соперников
+        const opponents = [
+            { name: "Али Абдель-Азиз", striking: 8, wrestling: 9, reward: 300, rank: 15 },
+            { name: "Артем Лобов", striking: 11, wrestling: 8, reward: 400, rank: 14 },
+            { name: "Нейт Диаз", striking: 13, wrestling: 12, reward: 600, rank: 13 },
+            { name: "Джастин Гейджи", striking: 16, wrestling: 11, reward: 800, rank: 12 },
+            { name: "Майкл Чендлер", striking: 15, wrestling: 15, reward: 1000, rank: 11 },
+            { name: "Дастин Порье", striking: 18, wrestling: 13, reward: 1500, rank: 10 },
+            { name: "Чарльз Оливейра", striking: 16, wrestling: 19, reward: 2000, rank: 5 },
+            { name: "Ислам Махачев", striking: 18, wrestling: 22, reward: 3500, rank: 1 },
+            { name: "Хабиб Нурмагомедов", striking: 17, wrestling: 25, reward: 5000, rank: 0 } // Чемпион
+        ];
+
+        let currentEnemy = null;
+        let fightState = {
+            currentRound: 1,
+            currentMoment: 1,
+            playerHP: 100,
+            enemyHP: 100,
+            interval: null
+        };
+          // База моментов для комментатора (6 моментов за раунд)
+        const fightMoments = {
+            striking: [
+                { text: "летит в яростную атаку! Мощный хук справа сотрясает воздух!", damage: 12, type: "hit" },
+                { text: "пробивает идеальный джеб точно в челюсть соперника!", damage: 10, type: "hit" },
+                { text: "взрывается серией ударов у сетки! Защита оппонента трещит по швам!", damage: 15, type: "hit" },
+                { text: "выкидывает сокрушительный хай-кик в голову!", damage: 18, type: "hit" },
+                { text: "пытается пробить лоу-кик, но соперник технично уклоняется.", damage: 0, type: "miss" },
+                { text: "промахивается размашистым оверхендом, теряя равновесие.", damage: 0, type: "miss" },
+                { text: "выбрасывает апперкот, но удар приходится в глухую защиту.", damage: 2, type: "miss" }
+            ],
+            wrestling: [
+                { text: "проходит в две ноги и с треском обрушивает соперника на настил!", damage: 8, type: "hit" },
+                { text: "зажимает оппонента у сетки и методично разбивает его локтями!", damage: 12, type: "hit" },
+                { text: "занимает доминирующую позицию в партере и включает жесткий граунд-энд-паунд!", damage: 16, type: "hit" },
+                { text: "проводит красивый бросок через бедро!", damage: 10, type: "hit" },
+                { text: "ныряет в ноги, но соперник великолепно защищается от тейкдауна (спрол).", damage: 0, type: "miss" },
+                { text: "пытается забрать спину, но оппонент выскальзывает обратно в стойку.", damage: 0, type: "miss" }
+            ],
+            knockoutChance: [
+                { text: "О БОЖЕ! Прямой удар ровно в подбородок! Это чистый нокаут! Рефери останавливает бой!", damage: 100, type: "finish" },
+                { text: "Точное попадание коленом в прыжке! Противник падает на канвас без сознания! Всё кончено!", damage: 100, type: "finish" }
+            ],
+            submissionChance: [
+                { text: "Попытка удушения сзади! Захват плотный... Замок защелкнулся! Соперник вынужден постучать в знак сдачи!", damage: 100, type: "finish" },
+                { text: "Ловит руку на чистейший рычаг локтя! Сустав на пределе... Сдача! Это победа сабмишеном!", damage: 100, type: "finish" }
+            ]
+        };
+
+        // Функции интерфейса и обновления стат
+        function updateUI() {
+            document.getElementById('stat-name').innerText = player.name;
+            document.getElementById('stat-record').innerText = `${player.wins}-${player.losses}`;
+            document.getElementById('stat-rank').innerText = player.rank === 0 ? "Чемпион 🏆" : (player.rank === 16 ? "Вне рейтинга" : `#${player.rank}`);
+            document.getElementById('stat-money').innerText = `$${player.money}`;
+            document.getElementById('stat-energy').innerText = `${player.energy}%`;
+
+            document.getElementById('skill-striking').innerText = `Уровень: ${player.striking}`;
+            document.getElementById('skill-wrestling').innerText = `Уровень: ${player.wrestling}`;
+            
+            if (!currentEnemy) {
+                // Ищем соперника, подходящего под текущий ранг
+                currentEnemy = opponents.find(o => o.rank <= player.rank) || opponents[0];
+                document.getElementById('enemy-name').innerText = currentEnemy.name;
+                document.getElementById('enemy-stats').innerText = `Ударка: ${currentEnemy.striking} | Борьба: ${currentEnemy.wrestling}`;
+                document.getElementById('fight-reward').innerText = `Гонорар за бой: $${currentEnemy.reward}`;
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+      }
+              // Логика тренировок и отдыха
+        function train(type) {
+            if (player.energy < 20) {
+                alert("Недостаточно энергии! Отдохните в лагере.");
+                return;
+            }
+            
+            player.energy -= 20;
+            if (type === 'striking') {
+                player.striking += 1;
+                logToConsole("Вы провели отличную сессию на лапах. Ударка увеличена!");
+            } else if (type === 'wrestling') {
+                player.wrestling += 1;
+                logToConsole("Вы отработали проходы в ноги и контроль. Борьба увеличена!");
+            }
+            updateUI();
+        }
+
+        function recover() {
+            if (player.energy >= 100) {
+                alert("Вы полностью полны сил!");
+                return;
+            }
+            player.energy = Math.min(100, player.energy + 50);
+            logToConsole("Вы отлично выспались и восстановили силы.");
+            updateUI();
+        }
+
+        function logToConsole(text) {
+            console.log(`[UFC Manager]: ${text}`);
+        }
+
+        // Подготовка к бою
+        function startFight() {
+            if (player.energy < 30) {
+                alert("Вы слишком истощены для боя! Сначала отдохните.");
+                return;
+            }
+            
+            player.energy -= 30; // Трата энергии на бой
+            
+            // Сброс состояния боя
+            fightState.currentRound = 1;
+            fightState.currentMoment = 1;
+            fightState.playerHP = 100;
+            fightState.enemyHP = 100;
+            
+            // Обновление интерфейса боя
+            document.getElementById('fighter-hud-name').innerText = player.name;
+            document.getElementById('enemy-hud-name').innerText = currentEnemy.name;
+            document.getElementById('fighter-hp').innerText = fightState.playerHP;
+            document.getElementById('enemy-hp').innerText = fightState.enemyHP;
+            
+            document.getElementById('battle-log').innerHTML = "";
+            document.getElementById('fight-preparation').style.display = "none";
+            document.getElementById('fight-zone').style.display = "block";
+            document.getElementById('next-round-btn').style.display = "none";
+            document.getElementById('close-fight-btn').style.display = "none";
+            
+            appendLog(`--- БОЙ НАЧАЛСЯ: ${player.name} против ${currentEnemy.name} ---`, 'log-system');
+            
+            // Запуск автоматического поединка по моментам
+            runFightSimulation();
+        }
+
+        function appendLog(text, className) {
+            const logBox = document.getElementById('battle-log');
+            const p = document.createElement('p');
+            p.className = className;
+            p.style.margin = "4px 0";
+            p.innerText = text;
+            logBox.appendChild(p);
+            logBox.scrollTop = logBox.scrollHeight;
+      }
+              // Симуляция поединка (6 моментов за раунд)
+        function runFightSimulation() {
+            fightState.interval = setInterval(() => {
+                if (fightState.playerHP <= 0 || fightState.enemyHP <= 0) {
+                    clearInterval(fightState.interval);
+                    determineWinner();
+                    return;
+                }
+
+                // Каждые 6 моментов меняется раунд
+                if (fightState.currentMoment > 6) {
+                    fightState.currentMoment = 1;
+                    fightState.currentRound++;
+                    
+                    if (fightState.currentRound > 3) {
+                        clearInterval(fightState.interval);
+                        determineDecisionWinner();
+                        return;
+                    }
+                    appendLog(`--- Раунд ${fightState.currentRound} ---`, 'log-system');
+                }
+
+                // Кто атакует в этот момент? (50/50)
+                const isPlayerAttacking = Math.random() > 0.5;
+                const attacker = isPlayerAttacking ? player : currentEnemy;
+                const defender = isPlayerAttacking ? currentEnemy : player;
+                const attackerName = isPlayerAttacking ? player.name : currentEnemy.name;
+
+                // Выбираем тип момента: ударка (60%) или борьба (40%)
+                const style = Math.random() > 0.4 ? 'striking' : 'wrestling';
+                
+                // Рандомный шанс на финиш (нокаут или сабмишен) — 3%
+                const finishChance = Math.random() < 0.03;
+
+                if (finishChance) {
+                    const finishType = style === 'striking' ? 'knockoutChance' : 'submissionChance';
+                    const finishMove = fightMoments[finishType][Math.floor(Math.random() * fightMoments[finishType].length)];
+                    
+                    appendLog(`[Момент ${fightState.currentMoment}] ${attackerName} ${finishMove.text}`, 'log-finish');
+                    
+                    if (isPlayerAttacking) {
+                        fightState.enemyHP = 0;
+                    } else {
+                        fightState.playerHP = 0;
+                    }
+                } else {
+                    // Обычный момент
+                    const pool = fightMoments[style];
+                    const move = pool[Math.floor(Math.random() * pool.length)];
+                    
+                    // Расчет урона на основе статов
+                    let finalDamage = move.damage;
+                    if (move.damage > 0) {
+                        const attackStat = isPlayerAttacking ? player[style] : currentEnemy[style];
+                        const defenseStat = isPlayerAttacking ? currentEnemy[style] : player[style];
+                        finalDamage = Math.max(5, Math.floor(move.damage * (attackStat / defenseStat)));
+                    }
+
+                    // Применяем урон
+                    if (isPlayerAttacking) {
+                        fightState.enemyHP = Math.max(0, fightState.enemyHP - finalDamage);
+                    } else {
+                        fightState.playerHP = Math.max(0, fightState.playerHP - finalDamage);
+                    }
+
+                    // Текст лога
+                    const logClass = move.damage > 0 ? 'log-hit' : 'log-miss';
+                    const damageText = finalDamage > 0 ? ` (-${finalDamage} HP)` : '';
+                    appendLog(`[Момент ${fightState.currentMoment}] ${attackerName} ${move.text}${damageText}`, logClass);
+                }
+
+                // Обновляем шкалу здоровья на экране
+                document.getElementById('fighter-hp').innerText = fightState.playerHP;
+                document.getElementById('enemy-hp').innerText = fightState.enemyHP;
+
+                fightState.currentMoment++;
+            }, 1500); // Интервал между моментами — 1.5 секунды
+        }
+
+        // Результат при досрочном завершении
+        function determineWinner() {
+            if (fightState.playerHP <= 0) {
+                appendLog(`КРАХ! Вы проиграли бой досрочно.`, 'log-system');
+                player.losses++;
+            } else {
+                appendLog(`ПОБЕДА! Вы сокрушили соперника и забираете гонорар!`, 'log-finish');
+                player.wins++;
+                player.money += currentEnemy.reward;
+                // Продвижение по рейтингу
+                if (player.rank > currentEnemy.rank) {
+                    player.rank = currentEnemy.rank;
+                } else if (player.rank === currentEnemy.rank && player.rank > 0) {
+                    player.rank--;
+                }
+            }
+            endFightMenu();
+        }
+
+        // Результат по решению судей (если прошли все 3 раунда)
+        function determineDecisionWinner() {
+            appendLog("--- Бой окончен! Судьи подсчитывают очки... ---", 'log-system');
+            
+            // У кого осталось больше здоровья, тот и победил
+            if (fightState.playerHP >= fightState.enemyHP) {
+                appendLog(`Победа единогласным решением судей: ${player.name}!`, 'log-finish');
+                player.wins++;
+                player.money += currentEnemy.reward;
+                if (player.rank > currentEnemy.rank) {
+                    player.rank = currentEnemy.rank;
+                } else if (player.rank === currentEnemy.rank && player.rank > 0) {
+                    player.rank--;
+                }
+            } else {
+                appendLog(`Поражение раздельным решением судей.`, 'log-system');
+                player.losses++;
+            }
+            endFightMenu();
+        }
+
+        function endFightMenu() {
+            document.getElementById('close-fight-btn').style.display = "block";
+            currentEnemy = null; // Сбрасываем врага для генерации нового
+            updateUI();
+        }
+
+        function finishFight() {
+            document.getElementById('fight-zone').style.display = "none";
+            document.getElementById('fight-preparation').style.display = "block";
+            showScreen('gym');
+        }
+
+        // Запуск игры при загрузке страницы
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
