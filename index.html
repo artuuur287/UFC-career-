@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MMA Manager Simulator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .panel {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        .main-panel { flex: 1.5; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn:hover { background-color: #444; }
+        .btn-action { background-color: #b91c1c; border-color: #991b1b; }
+        .btn-action:hover { background-color: #991b1b; }
+        .btn-danger { background-color: #451a03; border-color: #78350f; color: #f59e0b; }
+        .btn-danger:hover { background-color: #78350f; }
+        .btn-skip { background-color: #1e293b; border-color: #334155; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+        th { background-color: #252525; }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #444;
+        }
+        .fight-logs {
+            background-color: #0a0a0a;
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 6px;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="panel">
+            <h2>Профиль Бойца</h2>
+            <p><strong>Имя:</strong> <span id="p-name">Твой Боец</span></p>
+            <p><strong>Рекорд в профиле:</strong> <span id="p-record" style="color: #22c55e; font-weight: bold;">10 - 0</span></p>
+            <hr style="border-color: #333;">
+            <h3>Характеристики (0-100):</h3>
+            <ul>
+                <li>Бокс: <span id="s-box">0</span> <small style="color:#888;">(Простой: <span id="i-box">0</span> нед.)</small></li>
+                <li>Борьба: <span id="s-wrestle">0</span> <small style="color:#888;">(Простой: <span id="i-wrestle">0</span> нед.)</small></li>
+                <li>Физ. сила: <span id="s-strength">0</span> <small style="color:#888;">(Простой: <span id="i-strength">0</span> нед.)</small></li>
+                <li>Скорость: <span id="s-speed">0</span> <small style="color:#888;">(Простой: <span id="i-speed">0</span> нед.)</small></li>
+                <li>Выносливость: <span id="s-stamina">0</span> <small style="color:#888;">(Простой: <span id="i-stamina">0</span> нед.)</small></li>
+            </ul>
+            <hr style="border-color: #333;">
+            <p>Хайп: <span id="p-hype">0</span></p>
+            <p>Доброта: <span id="p-kindness">0</span></p>
+            <p>Готовность к бою: <span id="p-readiness">0</span>%</p>
+            <hr style="border-color: #333;">
+            <button class="btn btn-danger" onclick="deleteAccount()">ПОЛНОСТЬЮ УДАЛИТЬ АККАУНТ</button>
+  </div>
+          <div class="panel main-panel">
+            <h2>Тренировочный лагерь / Неделя <span id="current-week">1</span></h2>
+            <p style="color: #aaa;">Каждая тренировка продвигает время на 1 неделю вперед. Если навык не качать 7 недель, он начнет падать на -3 каждую неделю.</p>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="train('box')">Тренировать Бокс (+5)</button>
+                <button class="btn" onclick="train('wrestle')">Тренировать Борьбу (+5)</button>
+                <button class="btn" onclick="train('strength')">Тренировать Физ. силу (+5)</button>
+                <button class="btn" onclick="train('speed')">Тренировать Скорость (+5)</button>
+                <button class="btn" onclick="train('stamina')">Тренировать Выносливость (+5)</button>
+                <button class="btn btn-skip" onclick="train('none')">Пропустить неделю (Отдых)</button>
+            </div>
+            <hr style="border-color: #333; margin: 20px 0;">
+            <button class="btn btn-action" onclick="startNewCard()" style="font-size: 1.1em; padding: 15px;">НАСТУПЛЕНИЕ НОВОГО КАРДА</button>
+        </div>
+
+        <div class="panel">
+            <h2>Рейтинг Дивизиона</h2>
+            <table id="division-table">
+                <thead>
+                    <tr>
+                        <th>Ранг</th>
+                        <th>Боец</th>
+                        <th>Рекорд</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+        <div id="card-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #f59e0b;">Анонс текущего карда боев</h2>
+            <p style="color: #bbb; margin-bottom: 20px;">Остальные бойцы дивизиона уже провели поединки между собой. Вот результаты их встреч в этом карде:</p>
+            <div id="card-matches" style="background: #222; padding: 15px; border-radius: 6px; text-align: left; margin-bottom: 20px;">
+                </div>
+            <button class="btn btn-action" onclick="goToPlayerFight()">Перейти к моему поединку</button>
+        </div>
+    </div>
+
+    <div id="fight-modal" class="modal">
+        <div class="modal-content" style="max-width: 750px;">
+            <h2>РАУНД <span id="round-number" style="color: #b91c1c;">1</span></h2>
+            <div style="font-size: 1.3em; font-weight: bold; margin: 10px 0;">
+                <span style="color: #3b82f6;">Вы</span> VS <span id="fight-opponent-name" style="color: #ef4444;">Соперник</span>
+            </div>
+            
+            <div class="fight-logs" id="fight-logs"></div>
+            
+            <div id="tactics-zone">
+                <h3 style="margin-bottom: 15px;">Выберите тактику на этот раунд:</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn" onclick="selectTactic('strike_first')">1-й номер в стойке</button>
+                    <button class="btn" onclick="selectTactic('wrestle_first')">1-й номер в борьбе</button>
+                    <button class="btn" onclick="selectTactic('strike_second')">2-й номер в стойке</button>
+                    <button class="btn" onclick="selectTactic('wrestle_second')">2-й номер в борьбе</button>
+                </div>
+            </div>
+            <button class="btn btn-action" id="close-fight-btn" style="display:none;" onclick="closeFightModal()">Вернуться в лагерь</button>
+        </div>
+                  </div>
+                          <script>
+        // Структура данных игрока по умолчанию
+        const DEFAULT_PLAYER = {
+            name: "Игрок (Вы)", wins: 10, losses: 0,
+            stats: { box: 0, wrestle: 0, strength: 0, speed: 0, stamina: 0 },
+            idleWeeks: { box: 0, wrestle: 0, strength: 0, speed: 0, stamina: 0 },
+            hype: 0, kindness: 0, readiness: 0, week: 1
+        };
+
+        // Загрузка сохранения или создание нового
+        let player = JSON.parse(localStorage.getItem('mma_player_save')) || { ...DEFAULT_PLAYER };
+
+        // Глобальный список бойцов дивизиона
+        let division = [
+            { name: "Ислам Махачев", wins: 26, losses: 1, tier: 'champion' },
+            { name: "Арман Царукян", wins: 22, losses: 3, tier: 'strong' },
+            { name: "Чарльз Оливейра", wins: 34, losses: 10, tier: 'strong' },
+            { name: "Джастин Гейджи", wins: 25, losses: 5, tier: 'medium' },
+            { name: "Дэн Хукер", wins: 24, losses: 12, tier: 'medium' },
+            { name: "Пэдди Пимблетт", wins: 22, losses: 4, tier: 'weak' }
+        ];
+
+        let currentOpponent = null;
+        let currentRound = 1;
+        let playerRoundWins = 0;
+        let opponentRoundWins = 0;
+
+        function updateUI() {
+            document.getElementById('p-name').innerText = player.name;
+            document.getElementById('p-record').innerText = `${player.wins} - ${player.losses}`;
+            document.getElementById('current-week').innerText = player.week;
+            
+            for (let s in player.stats) {
+                document.getElementById(`s-${s}`).innerText = player.stats[s];
+                document.getElementById(`i-${s}`).innerText = player.idleWeeks[s];
+            }
+            
+            document.getElementById('p-hype').innerText = player.hype;
+            document.getElementById('p-kindness').innerText = player.kindness;
+            document.getElementById('p-readiness').innerText = player.readiness;
+
+            // Обновление и сортировка таблицы рейтинга дивизиона
+            let tbody = document.querySelector('#division-table tbody');
+            tbody.innerHTML = "";
+            
+            let allFighters = [...division, { name: player.name, wins: player.wins, losses: player.losses, tier: 'Игрок' }];
+            allFighters.sort((a, b) => b.wins - a.wins);
+
+            allFighters.forEach((f, index) => {
+                let prefix = f.tier === 'champion' ? '🏆 Чемпион: ' : `#${index + 1} `;
+                tbody.innerHTML += `<tr>
+                    <td>${prefix}</td>
+                    <td>${f.name}</td>
+                    <td style="font-weight:bold;">${f.wins}-${f.losses}</td>
+                </tr>`;
+            });
+            
+            localStorage.setItem('mma_player_save', JSON.stringify(player));
+        }
+
+        function train(stat) {
+            if (stat !== 'none') {
+                if (player.stats[stat] < 100) {
+                    player.stats[stat] = Math.min(100, player.stats[stat] + 5);
+                }
+            }
+
+            // Проверка простоя по всем характеристикам
+            for (let s in player.stats) {
+                if (s === stat) {
+                    player.idleWeeks[s] = 0;
+                } else {
+                    player.idleWeeks[s]++;
+                    if (player.idleWeeks[s] >= 7) {
+                        player.stats[s] = Math.max(0, player.stats[s] - 3);
+                    }
+                }
+            }
+
+            player.readiness = Math.min(100, player.readiness + 15);
+            player.week++;
+            updateUI();
+        }
+
+        function generateStatsForTier(tier) {
+            let min, max;
+            if (tier === 'weak') { min = 20; max = 40; }
+            else if (tier === 'medium') { min = 40; max = 65; }
+            else if (tier === 'strong') { min = 65; max = 90; }
+            else if (tier === 'champion') { min = 90; max = 100; }
+            const rnd = () => Math.floor(Math.random() * (max - min + 1)) + min;
+            return { box: rnd(), wrestle: rnd(), strength: rnd(), speed: rnd(), stamina: rnd() };
+        }
+                              function startNewCard() {
+            // Симулируем бои NPC между собой, рекорды меняются везде автоматически
+            let match1_1 = division[0]; let match1_2 = division[1];
+            if (Math.random() > 0.5) { match1_1.wins++; match1_2.losses++; } else { match1_2.wins++; match1_1.losses++; }
+
+            let match2_1 = division[2]; let match2_2 = division[3];
+            if (Math.random() > 0.5) { match2_1.wins++; match2_2.losses++; } else { match2_2.wins++; match2_1.losses++; }
+
+            let match3_1 = division[4]; let match3_2 = division[5];
+            if (Math.random() > 0.5) { match3_1.wins++; match3_2.losses++; } else { match3_2.wins++; match3_1.losses++; }
+
+            // Назначаем соперника игроку
+            let randomNpc = division[Math.floor(Math.random() * division.length)];
+            currentOpponent = {
+                name: randomNpc.name,
+                stats: generateStatsForTier(randomNpc.tier),
+                originNpc: randomNpc
+            };
+
+            let cardMatches = document.getElementById('card-matches');
+            cardMatches.innerHTML = `
+                <p>🟢 <strong>Главное событие карда:</strong> ${player.name} vs ${currentOpponent.name}</p>
+                <p>⚪️ <strong>Бой в карде:</strong> ${match1_1.name} (${match1_1.wins}-${match1_1.losses}) vs ${match1_2.name} (${match1_2.wins}-${match1_2.losses})</p>
+                <p>⚪️ <strong>Бой в карде:</strong> ${match2_1.name} (${match2_1.wins}-${match2_1.losses}) vs ${match2_2.name} (${match2_2.wins}-${match2_2.losses})</p>
+                <p>⚪️ <strong>Бой в карде:</strong> ${match3_1.name} (${match3_1.wins}-${match3_1.losses}) vs ${match3_2.name} (${match3_2.wins}-${match3_2.losses})</p>
+            `;
+            
+            document.getElementById('card-modal').style.display = 'flex';
+        }
+
+        function goToPlayerFight() {
+            document.getElementById('card-modal').style.display = 'none';
+            document.getElementById('fight-modal').style.display = 'flex';
+            document.getElementById('fight-opponent-name').innerText = currentOpponent.name;
+            document.getElementById('fight-logs').innerHTML = "Звучит гонг! Начат первый раунд. Выберите план на бой.";
+            currentRound = 1; playerRoundWins = 0; opponentRoundWins = 0;
+            document.getElementById('round-number').innerText = currentRound;
+            document.getElementById('tactics-zone').style.display = 'block';
+            document.getElementById('close-fight-btn').style.display = 'none';
+        }
+
+        function selectTactic(tactic) {
+            let logBox = document.getElementById('fight-logs');
+            let pPower = 0;
+            let oPower = (currentOpponent.stats.box + currentOpponent.stats.wrestle + currentOpponent.stats.speed) / 3;
+            let comment = "";
+
+            if (tactic === 'strike_first') {
+                pPower = player.stats.box * 1.4 + player.stats.speed * 0.8;
+                comment = `Твой боец работает первым номером в стойке! Жесткий джеб, серия на руках. Оппонент вынужден закрываться. `;
+            } else if (tactic === 'wrestle_first') {
+                pPower = player.stats.wrestle * 1.4 + player.stats.strength * 0.8;
+                comment = `Взрывной проход в ноги! Нурмагомедов делает тейкдаун! Наш боец обрушивает град ударов сверху в партере! `;
+            } else if (tactic === 'strike_second') {
+                pPower = player.stats.speed * 1.4 + player.stats.box * 0.8;
+                comment = `Выбрана работа вторым номером в стойке. Ловим соперника на встречных атаках, заставляя его промахиваться. `;
+            } else if (tactic === 'wrestle_second') {
+                pPower = player.stats.strength * 1.3 + player.stats.wrestle * 0.9;
+                comment = `Работа вторым номером в борьбе. Встречаем агрессивный натиск соперника в клинче и изматываем его у сетки октагона. `;
+            }
+
+            // Рандомный шанс досрочного завершения (Нокаут)
+            let isKO = Math.random() < (pPower / 350); 
+            if (isKO) {
+                comment += `<br><br><span style="color:#22c55e; font-weight:bold;">💥 ЭТО ФИНИШ! Мощнейший удар отправляет соперника на настил! Судья останавливает поединок. Чистый НАКАУТ!</span>`;
+                logBox.innerHTML = comment;
+                endFight(true, "Накаут");
+                return;
+            }
+
+            if (pPower > oPower) {
+                playerRoundWins++;
+                comment += `<br>👉 Раунд забирает ваш боец за счет эффективных действий.`;
+            } else {
+                opponentRoundWins++;
+                comment += `<br>👉 Раунд уходит сопернику. Он чище забирал эпизоды.`;
+            }
+
+            logBox.innerHTML = comment;
+
+            if (currentRound < 3) {
+                currentRound++;
+                document.getElementById('round-number').innerText = currentRound;
+            } else {
+                let playerWon = playerRoundWins > opponentRoundWins;
+                let method = playerRoundWins === 3 || opponentRoundWins === 3 ? "Единогласным решением судей" : "Раздельным решением судей";
+                endFight(playerWon, method);
+            }
+        }
+
+        function endFight(playerWon, method) {
+            document.getElementById('tactics-zone').style.display = 'none';
+            document.getElementById('close-fight-btn').style.display = 'block';
+            let logBox = document.getElementById('fight-logs');
+
+            if (playerWon) {
+                player.wins++; player.hype += 25;
+                currentOpponent.originNpc.losses++; // Изменение рекорда врага в таблице
+                logBox.innerHTML += `<br><br><span style="color:#22c55e; font-weight:bold;">Результат: ПОБЕДА (${method})! Ваша фан-база ликует!</span>`;
+            } else {
+                player.losses++; player.hype = Math.max(0, player.hype - 15);
+                currentOpponent.originNpc.wins++; // Изменение рекорда врага в таблице
+                logBox.innerHTML += `<br><br><span style="color:#ef4444; font-weight:bold;">Результат: ПОРАЖЕНИЕ (${method}). Возвращаемся в зал для работы над ошибками.</span>`;
+            }
+            player.readiness = 0;
+            updateUI();
+        }
+
+        function closeFightModal() {
+            document.getElementById('fight-modal').style.display = 'none';
+        }
+
+        // ПОЛНОЕ УДАЛЕНИЕ АККАУНТА (ОБНУЛЕНИЕ ВСЕГО)
+        function deleteAccount() {
+            if (confirm("Вы абсолютно уверены? Это действие ПОЛНОСТЬЮ ОБНУЛИТ ваш аккаунт, все характеристики, тренировки, хайп и рекорды дивизиона!")) {
+                localStorage.removeItem('mma_player_save');
+                player = {
+                    name: "Игрок (Вы)", wins: 10, losses: 0,
+                    stats: { box: 0, wrestle: 0, strength: 0, speed: 0, stamina: 0 },
+                    idleWeeks: { box: 0, wrestle: 0, strength: 0, speed: 0, stamina: 0 },
+                    hype: 0, kindness: 0, readiness: 0, week: 1
+                };
+                // Возврат дефолтных рекордов для NPC
+                division = [
+                    { name: "Ислам Махачев", wins: 26, losses: 1, tier: 'champion' },
+                    { name: "Арман Царукян", wins: 22, losses: 3, tier: 'strong' },
+                    { name: "Чарльз Оливейра", wins: 34, losses: 10, tier: 'strong' },
+                    { name: "Джастин Гейджи", wins: 25, losses: 5, tier: 'medium' },
+                    { name: "Дэн Хукер", wins: 24, losses: 12, tier: 'medium' },
+                    { name: "Пэдди Пимблетт", wins: 22, losses: 4, tier: 'weak' }
+                ];
+                updateUI();
+                alert("Аккаунт стерт. Все параметры сброшены на 0, изначальный рекорд восстановлен на 10-0.");
+            }
+        }
+
+        window.onload = function() { updateUI(); };
+    </script>
+</body>
+</html>
