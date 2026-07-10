@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFC Career Manager</title>
+</head>
+<body>
+
+    <header id="main-header" style="display:none;">
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">Календарь</div>
+                <div class="stat-value" id="hud-calendar">Неделя 1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Готовность</div>
+                <div class="stat-value" id="hud-readiness">0%</div>
+                <div class="progress-container"><div class="progress-bar" id="pb-readiness"></div></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Хайп</div>
+                <div class="stat-value" id="hud-hype">0%</div>
+                <div class="progress-container"><div class="progress-bar" id="pb-hype"></div></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Характер</div>
+                <div class="stat-value" id="hud-kindness">Нейтральный</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Вес</div>
+                <div class="stat-value" id="hud-weight">0 кг</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div id="screen-creation" class="screen active">
+            <div class="card" style="text-align: center; margin-top: 40px;">
+                <h2>Создание бойца UFC</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Добро пожаловать в симулятор карьеры.</p>
+                
+                <div class="form-group" style="text-align: left;">
+                    <label for="input-name">Имя и Фамилия бойца:</label>
+                    <input type="text" id="input-name" placeholder="Введите фамилию и имя бойца">
+                </div>
+
+                <div class="form-group" style="text-align: left;">
+                    <label for="select-weight">Весовая категория:</label>
+                    <select id="select-weight">
+                        <option value="lightweight">Легкий вес (Лимит: 70 кг)</option>
+                        <option value="middleweight">Средний вес (Лимит: 84 кг)</option>
+                        <option value="heavyweight">Тяжелый вес (Лимит: 120 кг)</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="FighterManager.createNewCareer()">Начать карьеру</button>
+            </div>
+        </div>
+
+        <div id="screen-hub" class="screen">
+            <div class="buildings-grid">
+                
+                <div class="building-card" onclick="Navigation.goTo('screen-arena')">
+                    <div class="building-placeholder">🏟️</div>
+                    <img class="building-img" src="Picsart_26-07-09_22-31-29-952.png" alt="" onerror="this.style.opacity='0'">
+                    <div class="building-info">
+                        <div class="building-title">Арена</div>
+                        <div class="building-desc">Рейтинги дивизионов и вызовы на бои</div>
+                    </div>
+                </div>
+
+                <div class="building-card" onclick="PressManager.openPress()">
+                    <div class="building-placeholder">🎙️</div>
+                    <img class="building-img" src="Picsart_26-07-09_22-26-31-289.png" alt="" onerror="this.style.opacity='0'">
+                    <div class="building-info">
+                        <div class="building-title">Пресс-конференция</div>
+                        <div class="building-desc">Общение с прессой, прокачка хайпа и характера</div>
+                    </div>
+                </div>
+
+                <div class="building-card" onclick="Navigation.goTo('screen-training')">
+                    <div class="building-placeholder">🥊</div>
+                    <img class="building-img" src="Picsart_26-07-09_22-39-09-677.png" alt="" onerror="this.style.opacity='0'">
+                    <div class="building-info">
+                        <div class="building-title">Тренировочный лагерь</div>
+                        <div class="building-desc">Развитие навыков и физ. показателей</div>
+                    </div>
+                </div>
+
+                <div class="building-card" onclick="Navigation.goTo('screen-diet')">
+                    <div class="building-placeholder">🍏</div>
+                    <img class="building-img" src="Picsart_26-07-09_22-35-49-924.png" alt="" onerror="this.style.opacity='0'">
+                    <div class="building-info">
+                        <div class="building-title">Диетолог</div>
+                        <div class="building-desc">Контроль и активная сгонка веса перед боем</div>
+                    </div>
+                </div>
+
+                <div class="building-card" onclick="OfficeManager.openProfile()">
+                    <div class="building-placeholder">👤</div>
+                    <img class="building-img" src="Picsart_26-07-09_22-32-22-084.png" alt="" onerror="this.style.opacity='0'">
+                    <div class="building-info">
+                        <div class="building-title">Профиль бойца</div>
+                        <div class="building-desc">Ваша подробная статистика и история боев</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="scheduled-fight-banner" class="card" style="display:none; border-color: var(--warning-color); margin-bottom: 80px;">
+                <h4 style="color:var(--warning-color);">БЛИЖАЙШИЙ ЗАПЛАНИРОВАННЫЙ БОЙ</h4>
+                <p id="sf-details">-</p>
+            </div>
+
+            <button class="btn btn-fixed-bottom" onclick="TimeManager.skipWeek()">Пропустить неделю (+1 кг)</button>
+  </div>
+          <div id="screen-training" class="screen">
+            <button class="btn btn-secondary" onclick="Navigation.goTo('screen-hub')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
+            <div class="card">
+                <h3>Тренировочные сессии</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Каждая тренировка развивает навык и повышает готовность к бою.</p>
+                <button class="btn" onclick="TrainingManager.train('boxing')" style="margin-bottom: 10px;">🥊 Бокс (+3 Навык, +5 Готовность)</button>
+                <button class="btn" onclick="TrainingManager.train('wrestling')" style="margin-bottom: 10px;">🤼 Борьба (+3 Навык, +5 Готовность)</button>
+                <button class="btn" onclick="TrainingManager.train('strength')" style="margin-bottom: 10px;">💪 Сила (+3 Навык, +5 Готовность)</button>
+                <button class="btn" onclick="TrainingManager.train('stamina')" style="margin-bottom: 10px;">🏃 Выносливость (+3 Навык, +5 Готовность)</button>
+                <button class="btn" onclick="TrainingManager.train('speed')">⚡ Скорость (+3 Навык, +5 Готовность)</button>
+            </div>
+        </div>
+
+        <div id="screen-diet" class="screen">
+            <button class="btn btn-secondary" onclick="Navigation.goTo('screen-hub')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
+            <div class="card" style="text-align: center;">
+                <h3>Кабинет диетолога</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Здесь вы можете экстренно согнать вес к лимиту вашей весовой категории.</p>
+                <button class="btn" onclick="DietManager.burnWeight()">🍏 Сбросить вес (-2 кг)</button>
+            </div>
+        </div>
+
+        <div id="screen-arena" class="screen">
+            <button class="btn btn-secondary" onclick="Navigation.goTo('screen-hub')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
+            <div class="card">
+                <h3>Рейтинги бойцов UFC</h3>
+                <div class="tabs" id="div-tabs">
+                    <div class="tab active" onclick="ArenaManager.changeTab('lightweight')">Легкий вес</div>
+                    <div class="tab" onclick="ArenaManager.changeTab('middleweight')">Средний вес</div>
+                    <div class="tab" onclick="ArenaManager.changeTab('heavyweight')">Тяжелый вес</div>
+                </div>
+                <div id="ratings-list"></div>
+            </div>
+        </div>
+
+        <div id="screen-profile" class="screen">
+            <button class="btn btn-secondary" onclick="Navigation.goTo('screen-hub')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
+            <div class="card">
+                <h3 id="prof-title-name">Профиль бойца</h3>
+                <table style="width:100%; border-collapse: collapse; margin-top: 15px;">
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Бокс:</td><td style="text-align:right; font-weight:bold;" id="prof-boxing">0/100</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Борьба:</td><td style="text-align:right; font-weight:bold;" id="prof-wrestling">0/100</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Физическая сила:</td><td style="text-align:right; font-weight:bold;" id="prof-strength">0/100</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Выносливость:</td><td style="text-align:right; font-weight:bold;" id="prof-stamina">0/100</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Скорость:</td><td style="text-align:right; font-weight:bold;" id="prof-speed">0/100</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Фанаты:</td><td style="text-align:right; font-weight:bold;" id="prof-fans">0</td></tr>
+                    <tr style="border-bottom: 1px solid #333;"><td style="padding:10px 0; color:var(--text-muted);">Статус:</td><td style="text-align:right; font-weight:bold;" id="prof-injury">Здоров</td></tr>
+                </table>
+            </div>
+            <div class="card">
+                <h3>История поединков</h3>
+                <div id="history-container"></div>
+            </div>
+            <button class="btn btn-danger" onclick="OfficeManager.deleteCareer()" style="margin-top: 20px;">Удалить карьеру</button>
+        </div>
+
+    </div>
+
+    <div id="modal-alert" class="modal-overlay">
+        <div class="modal-content" style="text-align:center;">
+            <h3 id="alert-title">Внимание</h3>
+            <p id="alert-text" style="margin: 15px 0; color: var(--text-muted);"></p>
+            <button class="btn" onclick="ModalManager.close('modal-alert')">Понятно</button>
+        </div>
+    </div>
+
+    <div id="modal-challenge" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Организация боя</h3>
+            <p id="challenge-target-text" style="margin-bottom:15px;"></p>
+            <div class="form-group">
+                <label for="select-card">Выберите турнир UFC:</label>
+                <select id="select-card"></select>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" id="btn-confirm-challenge">Утвердить бой</button>
+                <button class="btn btn-secondary" onclick="ModalManager.close('modal-challenge')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-press" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Пресс-конференция перед медиа</h3>
+            <div class="dialog-box" id="press-question">Вопрос...</div>
+            <div id="press-answers-container"></div>
+        </div>
+    </div>
+
+    <div id="modal-fight-arena" class="modal-overlay" style="z-index: 300;">
+        <div class="modal-content" style="max-width: 650px;">
+            <h2 id="fight-title" style="text-align:center; margin-bottom: 15px;">UFC ТУРНИР</h2>
+            <div class="fight-log" id="fight-log-screen"></div>
+            <button class="btn" id="btn-finish-fight" style="display:none;" onclick="FightEngine.closeFightReport()">Продолжить</button>
+        </div>
+    </div>
+
+<style>
+    :root { --bg-color: #121212; --panel-color: #1e1e1e; --accent-color: #e50914; --accent-hover: #b2060e; --text-color: #ffffff; --text-muted: #aaaaaa; --border-color: #333333; --success-color: #4caf50; --warning-color: #ff9800; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px; }
+    header { background-color: var(--panel-color); border-bottom: 2px solid var(--accent-color); padding: 12px; position: sticky; top: 0; z-index: 100; }
+    .stats-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; font-size: 0.8rem; text-align: center; }
+    .stat-item { background: rgba(255,255,255,0.03); padding: 6px; border-radius: 4px; border-top: 2px solid var(--text-muted); }
+    .stat-label { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 2px; }
+    .stat-value { font-weight: bold; }
+    .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .card { background: var(--panel-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    
+    .buildings-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+    .building-card { background: var(--panel-color); border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden; cursor: pointer; position: relative; height: 140px; display: flex; flex-direction: column; justify-content: flex-end; }
+    .building-card:hover { border-color: var(--accent-color); }
+    .building-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; z-index: 1; pointer-events: none; }
+    .building-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: rgba(255,255,255,0.05); z-index: 0; }
+    .building-info { position: relative; z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.4)); padding: 12px; width: 100%; }
+
+    .btn { display: block; width: 100%; padding: 10px; background: var(--accent-color); color: white; border: none; border-radius: 6px; font-weight: bold; text-transform: uppercase; text-align: center; cursor: pointer; font-size: 0.9rem; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-secondary { background: #444; }
+    .btn-danger { background: #721c24; }
+    .btn-fixed-bottom { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 770px; z-index: 90; }
+    .form-group { margin-bottom: 15px; }
+    input[type="text"], select { width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid var(--border-color); color: white; border-radius: 6px; }
+    .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; }
+    .tab { padding: 8px 15px; background: #252525; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; }
+    .tab.active { background: var(--accent-color); }
+    
+    .fighter-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #252525; font-size: 0.9rem; gap: 10px; }
+    .fighter-row.player { background: rgba(229, 9, 20, 0.15); border-left: 4px solid var(--accent-color); }
+    .fighter-row.champ { background: rgba(212, 175, 55, 0.1); border-left: 4px solid #d4af37; }
+    .rank-num { width: 30px; font-weight: bold; text-align: center; }
+    .fighter-info-block { flex-grow: 1; display: flex; justify-content: space-between; align-items: center; padding-right: 15px; }
+    .challenge-btn-mini { width: auto !important; padding: 5px 12px !important; font-size: 0.75rem !important; text-transform: none !important; margin: 0; }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 200; padding: 15px; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: var(--panel-color); border: 2px solid var(--border-color); border-radius: 10px; padding: 25px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .dialog-box { background: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid var(--accent-color); }
+    .answer-opt { background: #252525; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom: 10px; cursor: pointer; }
+    .answer-opt:hover { background: #333; }
+    .fight-log { background: #000; font-family: monospace; padding: 15px; height: 350px; overflow-y: auto; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; line-height: 1.4; }
+    .log-entry { margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 4px; }
+    .log-player { color: #3498db; }
+    .log-enemy { color: #e74c3c; }
+    .log-system { color: #f1c40f; }
+    .progress-container { background: #333; border-radius: 4px; height: 4px; width: 100%; margin-top: 3px; overflow: hidden; }
+    .progress-bar { background: var(--accent-color); height: 100%; width: 0%; }
+    .history-item { padding: 8px 0; border-bottom: 1px solid #252525; display: flex; justify-content: space-between; font-size: 0.9rem; }
+    .history-win { color: var(--success-color); font-weight: bold; }
+    .history-loss { color: var(--accent-color); font-weight: bold; }
+                                                                 </style>
+  <script>
+    const ORIGINAL_ROSTERS = {
+        lightweight: [
+            { name: "Ислам Махачев", wins: 26, losses: 1, boxing: 86, wrestling: 98, strength: 85, stamina: 92, speed: 84, isChamp: true },
+            { name: "Арман Царукян", wins: 22, losses: 3, boxing: 84, wrestling: 92, strength: 88, stamina: 90, speed: 86 },
+            { name: "Чарльз Оливейра", wins: 34, losses: 10, boxing: 82, wrestling: 94, strength: 80, stamina: 85, speed: 88 },
+            { name: "Джастин Гейджи", wins: 25, losses: 5, boxing: 90, wrestling: 80, strength: 92, stamina: 86, speed: 85 },
+            { name: "Дастин Порье", wins: 30, losses: 9, boxing: 92, wrestling: 78, strength: 86, stamina: 88, speed: 83 },
+            { name: "Макс Холлоуэй", wins: 26, losses: 7, boxing: 95, wrestling: 75, strength: 80, stamina: 98, speed: 90 },
+            { name: "Майкл Чендлер", wins: 23, losses: 8, boxing: 87, wrestling: 85, strength: 94, stamina: 80, speed: 88 },
+            { name: "Матеуш Гамрот", wins: 24, losses: 2, boxing: 78, wrestling: 93, strength: 84, stamina: 93, speed: 85 },
+            { name: "Бенеил Дариуш", wins: 22, losses: 6, boxing: 80, wrestling: 86, strength: 82, stamina: 84, speed: 80 },
+            { name: "Рафаэль Физиев", wins: 12, losses: 3, boxing: 93, wrestling: 72, strength: 87, stamina: 85, speed: 94 },
+            { name: "Дэн Хукер", wins: 24, losses: 12, boxing: 86, wrestling: 74, strength: 83, stamina: 88, speed: 82 },
+            { name: "Ренато Мойкано", wins: 19, losses: 5, boxing: 79, wrestling: 87, strength: 78, stamina: 86, speed: 83 },
+            { name: "Бенуа Сен-Дени", wins: 13, losses: 2, boxing: 82, wrestling: 88, strength: 89, stamina: 87, speed: 81 },
+            { name: "Джалин Тёрнер", wins: 14, losses: 8, boxing: 88, wrestling: 70, strength: 85, stamina: 80, speed: 87 },
+            { name: "Пэдди Пимблетт", wins: 22, losses: 3, boxing: 77, wrestling: 83, strength: 80, stamina: 86, speed: 82 }
+        ],
+        middleweight: [
+            { name: "Дрикус Дю Плесси", wins: 22, losses: 2, boxing: 88, wrestling: 89, strength: 93, stamina: 90, speed: 81, isChamp: true },
+            { name: "Шон Стрикленд", wins: 29, losses: 6, boxing: 93, wrestling: 80, strength: 82, stamina: 96, speed: 84 },
+            { name: "Исраэль Адесанья", wins: 24, losses: 4, boxing: 96, wrestling: 70, strength: 84, stamina: 91, speed: 92 },
+            { name: "Роберт Уиттакер", wins: 26, losses: 7, boxing: 91, wrestling: 84, strength: 86, stamina: 89, speed: 88 },
+            { name: "Хамзат Чимаев", wins: 14, losses: 0, boxing: 82, wrestling: 97, strength: 91, stamina: 82, speed: 89 },
+            { name: "Нассурдин Имавов", wins: 15, losses: 4, boxing: 87, wrestling: 81, strength: 84, stamina: 88, speed: 86 },
+            { name: "Джаред Каннонир", wins: 17, losses: 7, boxing: 89, wrestling: 78, strength: 95, stamina: 83, speed: 82 },
+            { name: "Марвин Веттори", wins: 19, losses: 7, boxing: 80, wrestling: 86, strength: 88, stamina: 92, speed: 80 },
+            { name: "Брендан Аллен", wins: 24, losses: 5, boxing: 78, wrestling: 89, strength: 81, stamina: 87, speed: 83 },
+            { name: "Пауло Коста", wins: 14, losses: 4, boxing: 88, wrestling: 75, strength: 90, stamina: 81, speed: 85 },
+            { name: "Джек Херманссон", wins: 24, losses: 8, boxing: 79, wrestling: 85, strength: 83, stamina: 86, speed: 81 },
+            { name: "Роман Долидзе", wins: 13, losses: 3, boxing: 81, wrestling: 84, strength: 92, stamina: 82, speed: 78 },
+            { name: "Кайо Борральо", wins: 17, losses: 1, boxing: 82, wrestling: 86, strength: 85, stamina: 88, speed: 84 },
+            { name: "Энтони Эрнандес", wins: 12, losses: 2, boxing: 75, wrestling: 90, strength: 80, stamina: 95, speed: 85 },
+            { name: "Крис Вайдман", wins: 16, losses: 7, boxing: 78, wrestling: 84, strength: 84, stamina: 81, speed: 77 }
+        ],
+        heavyweight: [
+            { name: "Джон Джонс", wins: 28, losses: 1, boxing: 90, wrestling: 96, strength: 90, stamina: 92, speed: 86, isChamp: true },
+            { name: "Том Аспиналл", wins: 15, losses: 3, boxing: 93, wrestling: 91, strength: 94, stamina: 88, speed: 93 },
+            { name: "Сирил Ган", wins: 12, losses: 2, boxing: 95, wrestling: 72, strength: 89, stamina: 90, speed: 94 },
+            { name: "Александр Волков", wins: 38, losses: 10, boxing: 91, wrestling: 79, strength: 87, stamina: 93, speed: 80 },
+            { name: "Сергей Павлович", wins: 18, losses: 3, boxing: 94, wrestling: 75, strength: 98, stamina: 80, speed: 87 },
+            { name: "Кёртис Блейдс", wins: 18, losses: 5, boxing: 78, wrestling: 93, strength: 92, stamina: 85, speed: 81 },
+            { name: "Жаилтон Алмейда", wins: 21, losses: 3, boxing: 70, wrestling: 95, strength: 88, stamina: 88, speed: 86 },
+            { name: "Стипе Миочич", wins: 20, losses: 5, boxing: 89, wrestling: 86, strength: 88, stamina: 85, speed: 82 },
+            { name: "Марчин Тыбура", wins: 25, losses: 9, boxing: 79, wrestling: 84, strength: 85, stamina: 86, speed: 75 },
+            { name: "Деррик Льюис", wins: 28, losses: 12, boxing: 88, wrestling: 68, strength: 99, stamina: 70, speed: 80 },
+            { name: "Сергей Спивак", wins: 17, losses: 4, boxing: 75, wrestling: 89, strength: 86, stamina: 87, speed: 78 },
+            { name: "Таи Туиваса", wins: 14, losses: 8, boxing: 90, wrestling: 65, strength: 95, stamina: 75, speed: 83 },
+            { name: "Донтейл Майс", wins: 11, losses: 6, boxing: 78, wrestling: 75, strength: 84, stamina: 80, speed: 79 },
+            { name: "Шамиль Газиев", wins: 13, losses: 1, boxing: 80, wrestling: 83, strength: 88, stamina: 78, speed: 76 },
+            { name: "Родриго Насименто", wins: 11, losses: 2, boxing: 74, wrestling: 81, strength: 82, stamina: 81, speed: 74 }
+        ]
+    };
+
+    let state = {
+        player: null, rosters: {}, currentWeek: 1, currentMonth: 1,
+        currentUfcNumber: 330, actionUsedThisWeek: false,
+        scheduledFight: null, fightHistory: [], arenaActiveTab: 'lightweight'
+    };
+
+    const Navigation = {
+        goTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0,0);
+            if (screenId === 'screen-arena') ArenaManager.render();
+        }
+    };
+
+    const ModalManager = {
+        open(id, setupCallback) {
+            const modal = document.getElementById(id);
+            if (modal) { if (setupCallback) setupCallback(modal); modal.classList.add('active'); }
+        },
+        close(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
+        }
+    };
+
+    const FighterManager = {
+        createNewCareer() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            if (!nameInput) { alert("Пожалуйста, введите фамилию и имя вашего бойца!"); return; }
+            const div = document.getElementById('select-weight').value;
+            
+            let startWeight = 75;
+            if (div === 'middleweight') startWeight = 90;
+            if (div === 'heavyweight') startWeight = 125;
+
+            // СБРОС СТАРТОВЫХ ХАРАКТЕРИСТИК ДО НАЧАЛЬНЫХ ЗНАЧЕНИЙ (Минимум)
+            state.player = {
+                name: nameInput, division: div, weight: startWeight,
+                wins: 0, losses: 0, rank: 15, boxing: 25, wrestling: 25,
+                strength: 25, stamina: 25, speed: 25,
+                readiness: 40, hype: 10, kindness: "Нейтральный", kindnessVal: 50,
+                fans: 150, isInjured: false, injuryDuration: 0
+            };
+            
+            state.rosters = JSON.parse(JSON.stringify(ORIGINAL_ROSTERS));
+            state.currentWeek = 1; state.currentMonth = 1; state.currentUfcNumber = 330;
+            state.actionUsedThisWeek = false; state.scheduledFight = null; state.fightHistory = [];
+            state.arenaActiveTab = div;
+
+            document.getElementById('main-header').style.display = 'block';
+            this.saveToStorage(); this.updateHUD(); Navigation.goTo('screen-hub');
+        },
+
+        updateHUD() {
+            if (!state.player) return;
+            const p = state.player;
+            document.getElementById('hud-calendar').innerText = `Нед ${state.currentWeek}, Мес ${state.currentMonth} (UFC ${state.currentUfcNumber})`;
+            document.getElementById('hud-readiness').innerText = `${p.readiness}%`;
+            document.getElementById('pb-readiness').style.width = `${p.readiness}%`;
+            document.getElementById('hud-hype').innerText = `${p.hype}%`;
+            document.getElementById('pb-hype').style.width = `${p.hype}%`;
+            document.getElementById('hud-kindness').innerText = p.kindness;
+            document.getElementById('hud-weight').innerText = `${p.weight.toFixed(1)} кг`;
+
+            const banner = document.getElementById('scheduled-fight-banner');
+            if (state.scheduledFight) {
+                banner.style.display = 'block';
+                document.getElementById('sf-details').innerText = `UFC ${state.scheduledFight.cardNum} | Противник: ${state.scheduledFight.opponentName} (#${state.scheduledFight.opponentRank})`;
+            } else { banner.style.display = 'none'; }
+        },
+        saveToStorage() { localStorage.setItem('ufc_career_save_v4', JSON.stringify(state)); },
+        loadFromStorage() {
+            const data = localStorage.getItem('ufc_career_save_v4');
+            if (data) {
+                try {
+                    state = JSON.parse(data);
+                    document.getElementById('main-header').style.display = 'block';
+                    this.updateHUD(); Navigation.goTo('screen-hub'); return true;
+                } catch(e) { return false; }
+            }
+            return false;
+        }
+    };
+  </script>
+  <script>
+    const TimeManager = {
+        checkAction() {
+            if (state.actionUsedThisWeek) {
+                document.getElementById('alert-title').innerText = "Действие уже совершено";
+                document.getElementById('alert-text').innerText = "На этой неделе вы уже провели активность. Нажмите 'Пропустить неделю', чтобы двигаться дальше.";
+                ModalManager.open('modal-alert'); return false;
+            }
+            return true;
+        },
+        useAction() { state.actionUsedThisWeek = true; FighterManager.saveToStorage(); FighterManager.updateHUD(); },
+        skipWeek() {
+            state.player.weight += 1.0; // Вес пассивно растет, готовность сама по себе не меняется
+            if (state.player.isInjured) {
+                state.player.injuryDuration--;
+                if (state.player.injuryDuration <= 0) state.player.isInjured = false;
+            }
+            state.actionUsedThisWeek = false; state.currentWeek++;
+            if (state.currentWeek > 4) {
+                state.currentWeek = 1; state.currentMonth++;
+                if (state.scheduledFight && state.scheduledFight.cardNum === state.currentUfcNumber) {
+                    FightEngine.runScheduledFight();
+                } else {
+                    FightEngine.simulateOutsideCard();
+                }
+            }
+            FighterManager.saveToStorage(); FighterManager.updateHUD();
+        }
+    };
+
+    const TrainingManager = {
+        train(type) {
+            if (!TimeManager.checkAction()) return;
+            state.player[type] = Math.min(100, state.player[type] + 3);
+            state.player.readiness = Math.min(100, state.player.readiness + 5); // Готовность растет только тут
+            
+            document.getElementById('alert-title').innerText = "Тренировка завершена";
+            document.getElementById('alert-text').innerText = `Ваш показатель улучшен на +3. Общая боевая готовность поднялась на +5%.`;
+            ModalManager.open('modal-alert');
+            TimeManager.useAction();
+        }
+    };
+
+    const DietManager = {
+        burnWeight() {
+            if (!TimeManager.checkAction()) return;
+            state.player.weight = Math.max(45, state.player.weight - 2.0); // Вес падает отдельно, готовность не трогаем
+            document.getElementById('alert-title').innerText = "Кабинет диетолога";
+            document.getElementById('alert-text').innerText = "Успешная сессия! Вес снижен на 2 кг.";
+            ModalManager.open('modal-alert');
+            TimeManager.useAction();
+        }
+    };
+
+    const PressManager = {
+        pool: [
+            {
+                q: "Журналист: Ваш соперник обещает финишировать вас в первом раунде. Ваш ответ?",
+                a1: "Он слишком много болтает, я оторву ему голову клетке! (Трэшток)", a2: "Он отличный боец, но победа будет за мной. (Уважение)",
+                r1: { hype: 15, kind: -15 }, r2: { hype: 5, kind: 15 }
+            },
+            {
+                q: "Журналист: Куда вы потратите деньги после завоевания титула?",
+                a1: "Закажу золотой пояс и устрою вечеринку! (Хайп)", a2: "Построю новый спортзал в родном городе. (Доброта)",
+                r1: { hype: 20, kind: -5 }, r2: { hype: 0, kind: 25 }
+            }
+        ],
+        openPress() {
+            if (!TimeManager.checkAction()) return;
+            const rand = this.pool[Math.floor(Math.random() * this.pool.length)];
+            document.getElementById('press-question').innerText = rand.q;
+            let html = `
+                <div class="answer-opt" onclick="PressManager.answer(${rand.r1.hype}, ${rand.r1.kind})">${rand.a1}</div>
+                <div class="answer-opt" onclick="PressManager.answer(${rand.r2.hype}, ${rand.r2.kind})">${rand.a2}</div>
+            `;
+            document.getElementById('press-answers-container').innerHTML = html;
+            ModalManager.open('modal-press');
+        },
+        answer(hypeAdd, kindAdd) {
+            ModalManager.close('modal-press');
+            state.player.hype = Math.min(100, Math.max(0, state.player.hype + hypeAdd));
+            state.player.kindnessVal = Math.min(100, Math.max(0, state.player.kindnessVal + kindAdd));
+            state.player.kindness = state.player.kindnessVal > 65 ? "Добряк" : (state.player.kindnessVal < 35 ? "Трэштокер" : "Нейтральный");
+            state.player.fans = Math.floor(state.player.fans * (1 + (hypeAdd/100)));
+            TimeManager.useAction();
+        }
+    };
+  </script>
+  <script>
+    const ArenaManager = {
+        changeTab(div) { state.arenaActiveTab = div; this.render(); },
+        render() {
+            const listContainer = document.getElementById('ratings-list'); listContainer.innerHTML = "";
+            const division = state.arenaActiveTab; const roster = state.rosters[division];
+            const champ = roster.find(f => f.isChamp); const contenders = roster.filter(f => !f.isChamp);
+
+            if (champ) listContainer.appendChild(this.createRow(champ, "C", division));
+            contenders.forEach((f, idx) => { listContainer.appendChild(this.createRow(f, idx + 1, division)); });
+        },
+        createRow(f, rankStr, division) {
+            const row = document.createElement('div');
+            const isPlayer = (state.player.division === division && state.player.rank === rankStr && !f.isChamp) || 
+                            (state.player.division === division && rankStr === "C" && f.isChamp && state.player.rank === "C");
+            row.className = `fighter-row ${isPlayer ? 'player' : ''} ${f.isChamp ? 'champ' : ''}`;
+
+            let nameStr = isPlayer ? `${state.player.name} (ВЫ)` : f.name;
+            let recStr = isPlayer ? `${state.player.wins}-${state.player.losses}` : `${f.wins}-${f.losses}`;
+            let btnHtml = "";
+
+            if (state.player.division === division && !isPlayer) {
+                let pRank = state.player.rank === "C" ? 0 : parseInt(state.player.rank);
+                let enemyRank = rankStr === "C" ? 0 : parseInt(rankStr);
+                // Компактные кнопки вызова, не ломающие строчку и рекорды
+                if (Math.abs(pRank - enemyRank) <= 2 || (enemyRank === 0 && pRank <= 2)) {
+                    if (state.scheduledFight) btnHtml = `<button class="btn challenge-btn-mini btn-secondary" disabled>Занят</button>`;
+                    else if (state.player.isInjured) btnHtml = `<button class="btn challenge-btn-mini btn-danger" disabled>Травма</button>`;
+                    else btnHtml = `<button class="btn challenge-btn-mini" onclick="ArenaManager.openChallenge('${f.name}', '${rankStr}')">Вызов</button>`;
+                }
+            }
+            row.innerHTML = `<div class="rank-num">${rankStr}</div><div class="fighter-info-block"><span>${nameStr}</span><span>${recStr}</span></div>${btnHtml}`;
+            return row;
+        },
+        openChallenge(enemyName, enemyRank) {
+            document.getElementById('challenge-target-text').innerHTML = `Вызов на бой бойца <b>${enemyName}</b>.`;
+            const select = document.getElementById('select-card'); select.innerHTML = "";
+            let option = document.createElement('option'); option.value = state.currentUfcNumber + 1; option.innerText = `UFC ${state.currentUfcNumber + 1} (В следующем месяце)`;
+            select.appendChild(option);
+            document.getElementById('btn-confirm-challenge').onclick = () => {
+                state.scheduledFight = { cardNum: parseInt(select.value), opponentName: enemyName, opponentRank: enemyRank, division: state.player.division };
+                ModalManager.close('modal-challenge'); FighterManager.saveToStorage(); FighterManager.updateHUD(); this.render();
+            };
+            ModalManager.open('modal-challenge');
+        }
+    };
+
+    const FightEngine = {
+        fightPhrases: [
+            "пробивает тяжелейший оверхенд в челюсть!",
+            "проводит успешный и чистый тейкдаун в центр октагона!",
+            "встречает оппонента резким и точным контр-джебом.",
+            "прижимает соперника к сетке и наносит серию ударов локтями.",
+            "забирает спину в партере и пытается выйти на удушающий."
+        ],
+        simulateOutsideCard() {
+            // Симуляция сторонних боев между ИИ при переходе карда
+            const divs = ['lightweight','middleweight','heavyweight'];
+            const chosenDiv = divs[Math.floor(Math.random()*3)];
+            const roster = state.rosters[chosenDiv];
+            let f1 = roster[Math.floor(Math.random()*roster.length)];
+            let f2 = roster[Math.floor(Math.random()*roster.length)];
+            while(f1.name === f2.name) { f2 = roster[Math.floor(Math.random()*roster.length)]; }
+            
+            if (Math.random() > 0.5) { f1.wins++; f2.losses++; } else { f2.wins++; f1.losses++; }
+            state.currentUfcNumber++;
+        },
+        runScheduledFight() {
+            const sf = state.scheduledFight; const p = state.player;
+            let limit = sf.division === 'middleweight' ? 84 : (sf.division === 'heavyweight' ? 120 : 70);
+            if (p.weight > limit) {
+                document.getElementById('fight-log-screen').innerHTML = `<div class='log-entry log-enemy'>❌ ВЫ ПРЕВЫСИЛИ ЛИМИТ ВЕСА! Бой на турнире UFC ${sf.cardNum} отменен.</div>`;
+                p.hype = Math.max(0, p.hype - 20); state.scheduledFight = null; state.currentUfcNumber++;
+                document.getElementById('btn-finish-fight').style.display = "block"; ModalManager.open('modal-fight-arena'); return;
+            }
+            const roster = state.rosters[sf.division];
+            let enemy = roster.find(f => f.name === sf.opponentName);
+
+            document.getElementById('fight-log-screen').innerHTML = `<div class='log-system'>📊 ТУРНИР UFC ${sf.cardNum} НАЧАЛСЯ! Другие бойцы ростера провели свои бои.</div>`;
+            this.log(`🔥 ГЛАВНОЕ СОБЫТИЕ: ${p.name} (#${p.rank}) против ${enemy.name} (#${sf.opponentRank})`, "system");
+
+            let pScore = 0, eScore = 0;
+            let pPower = (p.boxing + p.wrestling + p.strength + p.stamina + p.speed) * (p.readiness/100);
+            let ePower = (enemy.boxing + enemy.wrestling + enemy.strength + enemy.stamina + enemy.speed);
+
+            // ПОРАУНДОВЫЙ БОЙ ПО 3 ТЕКСТОВЫХ МОМЕНТА В КАЖДОМ
+            for(let r=1; r<=3; r++) {
+                this.log(`\n--- РАУНД ${r} ---`, "system");
+                let pRPoints = 0, eRPoints = 0;
+                for(let m=1; m<=3; m++) {
+                    let phrase = this.fightPhrases[Math.floor(Math.random()*this.fightPhrases.length)];
+                    let pChance = Math.random()*pPower; let eChance = Math.random()*ePower;
+                    if(pChance > eChance) { pRPoints++; this.log(`Момент ${m}: ${p.name} ${phrase}`, "player"); }
+                    else { eRPoints++; this.log(`Момент ${m}: ${enemy.name} ${phrase}`, "enemy"); }
+                }
+                if(pRPoints > eRPoints) { pScore++; this.log(`Итог раунда: судьи отдают раунд ${r} в пользу ${p.name}`, "player"); }
+                else { eScore++; this.log(`Итог раунда: судьи отдают раунд ${r} в пользу ${enemy.name}`, "enemy"); }
+            }
+
+            let isPlayerWin = pScore > eScore;
+            state.fightHistory.unshift({ card: `UFC ${sf.cardNum}`, opponent: enemy.name, win: isPlayerWin });
+
+            if(isPlayerWin) {
+                p.wins++; p.hype = Math.min(100, p.hype + 20); enemy.losses++;
+                this.log(`\n🏆 ИТОГОВЫЙ РЕЗУЛЬТАТ: Победа единогласным решением судей присуждается ${p.name}!`, "player");
+                if (sf.opponentRank === "C") { enemy.isChamp = false; p.rank = "C"; this.log("🎉 ПОТРЯСАЮЩЕ! Вы завоевали неоспоримый титул чемпиона UFC!", "system"); }
+                else if (p.rank !== "C" && parseInt(sf.opponentRank) < parseInt(p.rank)) { p.rank = sf.opponentRank; }
+            } else {
+                p.losses++; p.hype = Math.max(0, p.hype - 15); enemy.wins++;
+                this.log(`\n❌ ИТОГОВЫЙ РЕЗУЛЬТАТ: Победа решением судей уходит к ${enemy.name}.`, "enemy");
+                if (p.rank === "C") { p.rank = "1"; enemy.isChamp = true; }
+            }
+
+            p.readiness = 15; state.scheduledFight = null; state.currentUfcNumber++;
+            FighterManager.saveToStorage(); FighterManager.updateHUD();
+            document.getElementById('btn-finish-fight').style.display = "block"; ModalManager.open('modal-fight-arena');
+        },
+        log(t, side) {
+            const el = document.createElement('div'); el.className = `log-entry log-${side}`; el.innerText = t;
+            const scr = document.getElementById('fight-log-screen'); scr.appendChild(el); scr.scrollTop = scr.scrollHeight;
+        },
+        closeFightReport() { document.getElementById('btn-finish-fight').style.display = "none"; ModalManager.close('modal-fight-arena'); Navigation.goTo('screen-hub'); }
+    };
+
+    const OfficeManager = {
+        openProfile() {
+            const p = state.player;
+            document.getElementById('prof-title-name').innerText = p.name;
+            document.getElementById('prof-boxing').innerText = `${p.boxing}/100`;
+            document.getElementById('prof-wrestling').innerText = `${p.wrestling}/100`;
+            document.getElementById('prof-strength').innerText = `${p.strength}/100`;
+            document.getElementById('prof-stamina').innerText = `${p.stamina}/100`;
+            document.getElementById('prof-speed').innerText = `${p.speed}/100`;
+            document.getElementById('prof-fans').innerText = p.fans.toLocaleString();
+            document.getElementById('prof-injury').innerText = p.isInjured ? "Травмирован" : "Здоров";
+
+            const histContainer = document.getElementById('history-container'); histContainer.innerHTML = "";
+            if (state.fightHistory.length === 0) histContainer.innerHTML = "<p style='color:var(--text-muted);'>Боев еще не проводилось.</p>";
+            else state.fightHistory.forEach(h => {
+                histContainer.innerHTML += `<div class='history-item'><div><b>${h.card}</b> против ${h.opponent}</div><div class='${h.win ? 'history-win':'history-loss'}'>${h.win ? 'ПОБЕДА':'ПОРАЖЕНИЕ'}</div></div>`;
+            });
+            Navigation.goTo('screen-profile');
+        },
+        deleteCareer() { if (confirm("Внимание! Это полностью сотрет вашу текущую карьеру. Продолжить?")) { localStorage.removeItem('ufc_career_save_v4'); location.reload(); } }
+    };
+
+    window.onload = function() { if (!FighterManager.loadFromStorage()) Navigation.goTo('screen-creation'); };
+</script>
+</body>
+</html>
