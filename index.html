@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFC Career Simulator v2.0</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #d20a0a;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --border-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Верхняя панель */
+        .top-bar {
+            background-color: #000;
+            border-bottom: 2px solid var(--accent-color);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .stat-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            font-size: 14px;
+            background: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-item span {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .menu-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Экраны */
+        .screen {
+            display: none;
+            padding: 20px;
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+              /* Экран создания персонажа */
+        .creation-form {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        /* Главное меню */
+        .main-menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        .building-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .building-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+
+        .building-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #2a2a2a;
+            display: block;
+        }
+
+        .building-info {
+            padding: 15px;
+        }
+
+        .building-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .building-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Скип контейнер */
+        .skip-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--border-color);
+            z-index: 90;
+        }
+
+        .btn-skip {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 12px 40px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn-skip:hover {
+            background: #444;
+        }
+
+        .back-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        /* Пресс-конференция */
+        .pc-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pc-question {
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+
+        .pc-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pc-opt-btn {
+            background: #252525;
+            color: white;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .pc-opt-btn:hover {
+            background: #353535;
+            border-color: var(--accent-color);
+        }
+
+        /* Арена и рейтинги */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: #252525;
+            color: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ranking-item {
+            background: var(--card-bg);
+            padding: 10px 15px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .ranking-item.champion {
+            border: 2px solid #ffd700;
+            background: #2a2408;
+        }
+
+        .ranking-item.player {
+            border: 2px solid #00bcd4;
+        }
+
+        .rank-name {
+            font-weight: bold;
+        }
+
+        .rank-record {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+
+        .challenge-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .challenge-btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Офис и Профиль */
+        .office-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-card div {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .profile-card span {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* История боев */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #fff;
+        }
+
+        .history-item.win { border-left-color: #4caf50; }
+        .history-item.loss { border-left-color: #f44336; }
+        .history-item.canceled { border-left-color: #ff9800; }
+
+        /* Модальные окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .modal-text {
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-modal.confirm { background: var(--accent-color); color: white; }
+        .btn-modal.cancel { background: #444; color: white; }
+
+        .select-card-dropdown {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            color: white;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .training-stats-bar {
+            background: #111;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .t-stat-val {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+      <div class="top-bar" id="topBar" style="display: none;">
+        <div class="stat-group">
+            <div class="stat-item">Вес: <span id="barWeight">0</span> кг</div>
+            <div class="stat-item">Готовность: <span id="barReady">0</span>/100</div>
+            <div class="stat-item">Хайп: <span id="barHype">0</span></div>
+            <div class="stat-item">Доброта: <span id="barKind">0</span></div>
+            <div class="stat-item">Неделя: <span id="barWeek">1</span></div>
+            <div class="stat-item">Месяц: <span id="barMonth">1</span></div>
+        </div>
+        <button class="menu-btn" onclick="showScreen('mainMenu')">Меню</button>
+    </div>
+
+    <div id="screenCreation" class="screen active">
+        <div class="creation-form">
+            <h1>Создание бойца UFC</h1>
+            <div class="form-group">
+                <label for="playerName">Имя бойца</label>
+                <input type="text" id="playerName" placeholder="Введите имя..." value="Алексей Профи">
+            </div>
+            <div class="form-group">
+                <label for="playerWeightClass">Весовая категория</label>
+                <select id="playerWeightClass">
+                    <option value="light">Лёгкий вес (до 70 кг)</option>
+                    <option value="middle">Средний вес (до 84 кг)</option>
+                    <option value="heavy">Тяжёлый вес (до 120 кг)</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="initCareer()">Начать карьеру</button>
+        </div>
+    </div>
+
+    <div id="screenMainMenu" class="screen">
+        <div class="main-menu-container">
+            <div class="building-card" onclick="showScreen('arena')">
+                <img src="Picsart_26-07-09_22-31-29-952.png" alt="Арена" class="building-img">
+                <div class="building-info">
+                    <div class="building-title">Арена</div>
+                    <div class="building-desc">Рейтинги дивизионов, активная жизнь бойцов и вызовы на поединки.</div>
+                </div>
+            </div>
+            <div class="building-card" onclick="showScreen('training')">
+                <img src="Picsart_26-07-09_22-39-09-677.png" alt="Тренировки" class="building-img">
+                <div class="building-info">
+                    <div class="building-title">Тренировки</div>
+                    <div class="building-desc">Прокачка бокса или борьбы. Текущие показатели всегда видны внутри лагеря.</div>
+                </div>
+            </div>
+            <div class="building-card" onclick="useDietitian()">
+                <img src="Picsart_26-07-09_22-35-49-924.png" alt="Диетолог" class="building-img">
+                <div class="building-info">
+                    <div class="building-title">Диетолог</div>
+                    <div class="building-desc">Сбросить лишний вес (-2 кг). Необходим для успешной весогонки перед боем.</div>
+                </div>
+            </div>
+            <div class="building-card" onclick="showScreen('press')">
+                <img src="Picsart_26-07-09_22-26-31-289.png" alt="Пресс-конференция" class="building-img">
+                <div class="building-info">
+                    <div class="building-title">Пресс-конференция</div>
+                    <div class="building-desc">Общение с прессой. Влияет на показатели вашего Хайпа и Доброты.</div>
+                </div>
+            </div>
+            <div class="building-card" onclick="showScreen('office')">
+                <img src="Picsart_26-07-09_22-32-22-084.png" alt="Офис" class="building-img">
+                <div class="building-info">
+                    <div class="building-title">Офис менеджера</div>
+                    <div class="building-desc">Просмотр профиля бойца, истории поединков и управление настройками карьеры.</div>
+                </div>
+            </div>
+        </div>
+        <div class="skip-container">
+            <button class="btn-skip" onclick="skipWeek()">Скип недели</button>
+        </div>
+    </div>
+
+    <div id="screenTraining" class="screen">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <h2>Тренировочный лагерь</h2>
+        <div class="training-stats-bar">
+            <div>Уровень Бокса: <span id="trainBoxVal" class="t-stat-val">0</span>/100</div>
+            <div>Уровень Борьбы: <span id="trainWrestleVal" class="t-stat-val">0</span>/100</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="building-card" onclick="train('box')">
+                <div class="building-info">
+                    <div class="building-title">Тренировка по Боксу</div>
+                    <div class="building-desc">+5 к навыку Бокса, +5 к готовности.</div>
+                </div>
+            </div>
+            <div class="building-card" onclick="train('wrestling')">
+                <div class="building-info">
+                    <div class="building-title">Тренировка по Борьбе</div>
+                    <div class="building-desc">+5 к навыку Борьбы, +5 к готовности.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screenPress" class="screen">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <h2>Пресс-конференция</h2>
+        <div class="pc-box" id="pressBox"></div>
+    </div>
+
+    <div id="screenArena" class="screen">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <h2>Рейтинги дивизионов</h2>
+        <div class="tabs">
+            <button class="tab-btn" id="tab-light" onclick="renderArena('light')">Лёгкий вес</button>
+            <button class="tab-btn" id="tab-middle" onclick="renderArena('middle')">Средний вес</button>
+            <button class="tab-btn" id="tab-heavy" onclick="renderArena('heavy')">Тяжёлый вес</button>
+        </div>
+        <div id="scheduledFightInfo" style="margin-bottom: 15px; font-weight: bold; color: #ff9800;"></div>
+        <div class="ranking-list" id="rankingList"></div>
+    </div>
+
+    <div id="screenOffice" class="screen">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <h2>Офис менеджера</h2>
+        <div class="office-menu">
+            <button class="tab-btn" id="tab-profile" onclick="showOfficeSub('profile')">Профиль</button>
+            <button class="tab-btn" id="tab-history" onclick="showOfficeSub('history')">История</button>
+            <button class="tab-btn" id="tab-settings" onclick="showOfficeSub('settings')">Настройки</button>
+        </div>
+        <div id="officeProfile" class="profile-grid">
+            <div class="profile-card"><div>Имя:</div><span id="profName">-</span></div>
+            <div class="profile-card"><div>Категория:</div><span id="profClass">-</span></div>
+            <div class="profile-card"><div>Текущий вес:</div><span id="profWeight">-</span> кг</div>
+            <div class="profile-card"><div>Рейтинг:</div><span id="profRank">-</span></div>
+            <div class="profile-card"><div>Рекорд:</div><span id="profRecord">-</span></div>
+            <div class="profile-card"><div>Бокс:</div><span id="profBox">-</span>/100</div>
+            <div class="profile-card"><div>Борьба:</div><span id="profWrestle">-</span>/100</div>
+            <div class="profile-card"><div>Готовность:</div><span id="profReady">-</span>/100</div>
+            <div class="profile-card"><div>Хайп:</div><span id="profHype">-</span></div>
+            <div class="profile-card"><div>Доброта:</div><span id="profKind">-</span></div>
+        </div>
+        <div id="officeHistory" class="history-list" style="display: none;"></div>
+        <div id="officeSettings" style="display: none; background: var(--card-bg); padding: 20px; border-radius: 4px; border: 1px solid var(--border-color);">
+            <h3>Управление карьерой</h3>
+            <p style="margin-bottom: 15px; color: var(--text-muted);">Вы можете полностью сбросить текущий прогресс вашей карьеры.</p>
+            <button class="btn-primary" style="background-color: #333;" onclick="confirmDeleteCareer()">Удалить карьеру</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Уведомление</div>
+            <div class="modal-text" id="modalText">Текст сообщения...</div>
+            <div class="modal-buttons" id="modalButtons">
+                <button class="btn-modal confirm" onclick="closeModal()">ОК</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                      // Глобальное состояние игры
+        let gameState = {};
+
+        const WEIGHT_LIMITS = { light: 70, middle: 84, heavy: 120 };
+        const WEIGHT_NAMES = { light: "Лёгкий вес", middle: "Средний вес", heavy: "Тяжёлый вес" };
+
+        const INITIAL_ROSTERS = {
+            light: [
+                { id: "l_ch", name: "Ислам Махачев", record: { win: 26, loss: 1 }, rank: 0, isPlayer: false },
+                { id: "l_1", name: "Арман Царукян", record: { win: 22, loss: 3 }, rank: 1, isPlayer: false },
+                { id: "l_2", name: "Чарльз Оливейра", record: { win: 34, loss: 10 }, rank: 2, isPlayer: false },
+                { id: "l_3", name: "Джастин Гейджи", record: { win: 25, loss: 5 }, rank: 3, isPlayer: false },
+                { id: "l_4", name: "Дастин Порье", record: { win: 30, loss: 9 }, rank: 4, isPlayer: false },
+                { id: "l_5", name: "Макс Холлоуэй", record: { win: 26, loss: 7 }, rank: 5, isPlayer: false },
+                { id: "l_6", name: "Дэн Хукер", record: { win: 24, loss: 12 }, rank: 6, isPlayer: false },
+                { id: "l_7", name: "Майкл Чендлер", record: { win: 23, loss: 9 }, rank: 7, isPlayer: false },
+                { id: "l_8", name: "Матеуш Гамрот", record: { win: 24, loss: 3 }, rank: 8, isPlayer: false },
+                { id: "l_9", name: "Рафаэль Физиев", record: { win: 12, loss: 3 }, rank: 9, isPlayer: false },
+                { id: "l_10", name: "Ренато Мойкано", record: { win: 19, loss: 5 }, rank: 10, isPlayer: false },
+                { id: "l_11", name: "Бенуа Сен-Дени", record: { win: 13, loss: 3 }, rank: 11, isPlayer: false },
+                { id: "l_12", name: "Джалин Тёрнер", record: { win: 14, loss: 8 }, rank: 12, isPlayer: false },
+                { id: "l_13", name: "Пэдди Пимблетт", record: { win: 22, loss: 3 }, rank: 13, isPlayer: false }
+            ],
+            middle: [
+                { id: "m_ch", name: "Дрикус Дю Плесси", record: { win: 22, loss: 2 }, rank: 0, isPlayer: false },
+                { id: "m_1", name: "Шон Стрикленд", record: { win: 29, loss: 6 }, rank: 1, isPlayer: false },
+                { id: "m_2", name: "Исраэль Адесанья", record: { win: 24, loss: 4 }, rank: 2, isPlayer: false },
+                { id: "m_3", name: "Роберт Уиттакер", record: { win: 26, loss: 7 }, rank: 3, isPlayer: false },
+                { id: "m_4", name: "Нассурдин Имавов", record: { win: 15, loss: 4 }, rank: 4, isPlayer: false },
+                { id: "m_5", name: "Кайрон Боральо", record: { win: 17, loss: 1 }, rank: 5, isPlayer: false },
+                { id: "m_6", name: "Камару Усман", record: { win: 20, loss: 4 }, rank: 6, isPlayer: false },
+                { id: "m_7", name: "Джаред Каннонир", record: { win: 17, loss: 7 }, rank: 7, isPlayer: false },
+                { id: "m_8", name: "Марвин Веттори", record: { win: 19, loss: 7 }, rank: 8, isPlayer: false },
+                { id: "m_9", name: "Хамзат Чимаев", record: { win: 14, loss: 0 }, rank: 9, isPlayer: false },
+                { id: "m_10", name: "Джек Херманссон", record: { win: 24, loss: 8 }, rank: 10, isPlayer: false },
+                { id: "m_11", name: "Мишель Перейра", record: { win: 31, loss: 12 }, rank: 11, isPlayer: false },
+                { id: "m_12", name: "Энтони Эрнандес", record: { win: 12, loss: 2 }, rank: 12, isPlayer: false },
+                { id: "m_13", name: "Пол Крейг", record: { win: 17, loss: 8 }, rank: 13, isPlayer: false }
+            ],
+            heavy: [
+                { id: "h_ch", name: "Джон Джонс", record: { win: 28, loss: 1 }, rank: 0, isPlayer: false },
+                { id: "h_1", name: "Том Аспиналл", record: { win: 15, loss: 3 }, rank: 1, isPlayer: false },
+                { id: "h_2", name: "Сирил Ган", record: { win: 12, loss: 2 }, rank: 2, isPlayer: false },
+                { id: "h_3", name: "Александр Волков", record: { win: 38, loss: 10 }, rank: 3, isPlayer: false },
+                { id: "h_4", name: "Сергей Павлович", record: { win: 18, loss: 3 }, rank: 4, isPlayer: false },
+                { id: "h_5", name: "Кертис Блейдс", record: { win: 18, loss: 5 }, rank: 5, isPlayer: false },
+                { id: "h_6", name: "Жаилтон Алмейда", record: { win: 21, loss: 3 }, rank: 6, isPlayer: false },
+                { id: "h_7", name: "Сергей Спивак", record: { win: 17, loss: 4 }, rank: 7, isPlayer: false },
+                { id: "h_8", name: "Марчин Тыбура", record: { win: 25, loss: 9 }, rank: 8, isPlayer: false },
+                { id: "h_9", name: "Деррик Льюис", record: { win: 28, loss: 12 }, rank: 9, isPlayer: false },
+                { id: "h_10", name: "Таи Туиваса", record: { win: 14, loss: 8 }, rank: 10, isPlayer: false },
+                { id: "h_11", name: "Жаирзиньо Розенстрайк", record: { win: 14, loss: 5 }, rank: 11, isPlayer: false },
+                { id: "h_12", name: "Александр Романов", record: { win: 17, loss: 3 }, rank: 12, isPlayer: false },
+                { id: "h_13", name: "Маркос Рожерио де Лима", record: { win: 22, loss: 10 }, rank: 13, isPlayer: false }
+            ]
+        };
+
+        const PRESS_QUESTIONS = [
+            {
+                q: "Ваш оппонент заявил, что у вас совершенно нет шансов в партере. Что ответите?",
+                options: [
+                    { text: "Я заставлю его сдаться в первом раунде, он пожалеет.", hype: 15, kind: -10 },
+                    { text: "У него отличное грэпплинг, но я готов ко всему. Уважение ему.", hype: 5, kind: 15 },
+                    { text: "Посмотрим в октагоне. Меньше слов — больше дела.", hype: 8, kind: 5 }
+                ]
+            },
+            {
+                q: "Вы планируете получить бонус за лучшее выступление вечера?",
+                options: [
+                    { text: "Конечно, я устрою настоящую бойню и заберу эти деньги!", hype: 20, kind: -5 },
+                    { text: "Главное — это победа и показать красивый бой для фанатов.", hype: 10, kind: 10 },
+                    { text: "Я просто делаю свою работу на 100%.", hype: 5, kind: 5 }
+                ]
+            }
+        ];
+
+        window.onload = function() {
+            if (localStorage.getItem('ufc_career_save')) {
+                loadGame();
+            }
+        };
+              function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
+            if (screenId === 'creation') {
+                document.getElementById('topBar').style.display = 'none';
+                document.getElementById('screenCreation').classList.add('active');
+            } else {
+                document.getElementById('topBar').style.display = 'flex';
+                
+                if (screenId === 'mainMenu') {
+                    document.getElementById('screenMainMenu').classList.add('active');
+                } else if (screenId === 'training') {
+                    document.getElementById('screenTraining').classList.add('active');
+                    document.getElementById('trainBoxVal').innerText = gameState.player.skills.box;
+                    document.getElementById('trainWrestleVal').innerText = gameState.player.skills.wrestling;
+                } else if (screenId === 'press') {
+                    document.getElementById('screenPress').classList.add('active');
+                    generatePressConference();
+                } else if (screenId === 'arena') {
+                    document.getElementById('screenArena').classList.add('active');
+                    renderArena(gameState.player.weightClass);
+                } else if (screenId === 'office') {
+                    document.getElementById('screenOffice').classList.add('active');
+                    showOfficeSub('profile');
+                }
+            }
+            window.scrollTo(0,0);
+        }
+
+        function openModal(title, text, showCancel = false, onConfirm = null) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerHTML = text;
+            
+            const buttonsContainer = document.getElementById('modalButtons');
+            buttonsContainer.innerHTML = '';
+            
+            const okBtn = document.createElement('button');
+            okBtn.className = 'btn-modal confirm';
+            okBtn.innerText = 'ОК';
+            okBtn.onclick = function() {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
+            buttonsContainer.appendChild(okBtn);
+            
+            if (showCancel) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn-modal cancel';
+                cancelBtn.innerText = 'Отмена';
+                cancelBtn.onclick = closeModal;
+                buttonsContainer.appendChild(cancelBtn);
+            }
+            
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function initCareer() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                openModal("Ошибка", "Пожалуйста, введите имя бойца.");
+                return;
+            }
+            
+            const weightClass = document.getElementById('playerWeightClass').value;
+            const startWeight = WEIGHT_LIMITS[weightClass] - 2;
+
+            gameState = {
+                player: {
+                    name: name,
+                    weightClass: weightClass,
+                    weight: startWeight,
+                    hype: 10,
+                    kind: 50,
+                    ready: 70,
+                    skills: { box: 20, wrestling: 20 },
+                    record: { win: 0, loss: 0 },
+                    rank: 14,
+                    isPlayer: true,
+                    id: "player"
+                },
+                week: 1,
+                month: 1,
+                currentUfcNumber: 329,
+                actionUsedThisWeek: false,
+                scheduledFight: null,
+                rosters: JSON.parse(JSON.stringify(INITIAL_ROSTERS)),
+                history: []
+            };
+
+            gameState.rosters[weightClass].push(gameState.player);
+            saveGame();
+            updateTopBar();
+            showScreen('mainMenu');
+        }
+
+        function updateTopBar() {
+            document.getElementById('barWeight').innerText = gameState.player.weight;
+            document.getElementById('barReady').innerText = gameState.player.ready;
+            document.getElementById('barHype').innerText = gameState.player.hype;
+            document.getElementById('barKind').innerText = gameState.player.kind;
+            document.getElementById('barWeek').innerText = gameState.week;
+            document.getElementById('barMonth').innerText = gameState.month;
+        }
+
+        function saveGame() {
+            localStorage.setItem('ufc_career_save', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            try {
+                gameState = JSON.parse(localStorage.getItem('ufc_career_save'));
+                updateTopBar();
+                showScreen('mainMenu');
+            } catch(e) {
+                console.error("Сохранение повреждено", e);
+            }
+                      }
+              function tryUseAction() {
+            if (gameState.actionUsedThisWeek) {
+                openModal("Уведомление", "Ты уже использовал действие недели.");
+                return false;
+            }
+            return true;
+        }
+
+        function consumeAction() {
+            gameState.actionUsedThisWeek = true;
+            saveGame();
+        }
+
+        function useDietitian() {
+            if (!tryUseAction()) return;
+            gameState.player.weight = Math.max(40, gameState.player.weight - 2);
+            openModal("Диетолог", "Вы провели весогонку! Вес снижен на 2 кг.");
+            consumeAction();
+            updateTopBar();
+        }
+
+        function train(type) {
+            if (!tryUseAction()) return;
+            if (type === 'box') {
+                gameState.player.skills.box = Math.min(100, gameState.player.skills.box + 5);
+                document.getElementById('trainBoxVal').innerText = gameState.player.skills.box;
+                openModal("Тренровка", "Навык Бокса +5, Готовность +5.");
+            } else {
+                gameState.player.skills.wrestling = Math.min(100, gameState.player.skills.wrestling + 5);
+                document.getElementById('trainWrestleVal').innerText = gameState.player.skills.wrestling;
+                openModal("Тренровка", "Навык Борьбы +5, Готовность +5.");
+            }
+            gameState.player.ready = Math.min(100, gameState.player.ready + 5);
+            consumeAction();
+            updateTopBar();
+        }
+
+        function generatePressConference() {
+            const box = document.getElementById('pressBox');
+            const qIndex = (gameState.week + gameState.month) % PRESS_QUESTIONS.length;
+            const qData = PRESS_QUESTIONS[qIndex];
+            let html = `<div class="pc-question">"${qData.q}"</div><div class="pc-options">`;
+            qData.options.forEach((opt, idx) => {
+                html += `<button class="pc-opt-btn" onclick="answerPress(${qIndex}, ${idx})">${opt.text}</button>`;
+            });
+            html += `</div>`;
+            box.innerHTML = html;
+        }
+
+        function answerPress(qIdx, optIdx) {
+            if (!tryUseAction()) return;
+            const opt = PRESS_QUESTIONS[qIdx].options[optIdx];
+            gameState.player.hype = Math.max(0, gameState.player.hype + opt.hype);
+            gameState.player.kind = Math.max(0, Math.min(100, gameState.player.kind + opt.kind));
+            openModal("Пресс-конференция", `Медиа-эффект! Хайп: +${opt.hype}, Доброта: ${opt.kind}`);
+            consumeAction();
+            updateTopBar();
+            showScreen('mainMenu');
+        }
+
+        function simulateRosterLife() {
+            for (let wc in gameState.rosters) {
+                let roster = gameState.rosters[wc];
+                let bots = roster.filter(f => !f.isPlayer);
+                for (let i = 0; i < bots.length - 1; i += 2) {
+                    let b1 = bots[i];
+                    let b2 = bots[i+1];
+                    if(Math.random() > 0.5) {
+                        b1.record.win += 1;
+                        b2.record.loss += 1;
+                    } else {
+                        b2.record.win += 1;
+                        b1.record.loss += 1;
+                    }
+                }
+            }
+        }
+
+        function skipWeek() {
+            gameState.player.weight += 1;
+            gameState.player.ready = Math.max(0, gameState.player.ready - 20); // Ограничено падение до 20, чтобы лагерь не проседал до нуля
+            gameState.week += 1;
+            gameState.actionUsedThisWeek = false;
+
+            if (gameState.week > 4) {
+                gameState.week = 1;
+                gameState.month += 1;
+                gameState.currentUfcNumber += 1;
+                
+                simulateRosterLife();
+                
+                if (gameState.scheduledFight && gameState.scheduledFight.ufcNumber === gameState.currentUfcNumber) {
+                    executeFight();
+                } else {
+                    openModal("Новый месяц!", `Наступил ${gameState.month}-й месяц. Дивизионы провели свои поединки на турнире UFC ${gameState.currentUfcNumber - 1}!`);
+                }
+            } else {
+                openModal("Новая неделя", `Наступила ${gameState.week}-я неделя. Вес +1 кг.`);
+            }
+
+            saveGame();
+            updateTopBar();
+      }
+              function syncPlayerInRoster() {
+            let roster = gameState.rosters[gameState.player.weightClass];
+            let idx = roster.findIndex(f => f.isPlayer);
+            if (idx !== -1) {
+                roster[idx] = gameState.player;
+            }
+        }
+
+        function renderArena(weightClass) {
+            syncPlayerInRoster();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const activeTab = document.getElementById(`tab-${weightClass}`);
+            if (activeTab) activeTab.classList.add('active');
+
+            const listContainer = document.getElementById('rankingList');
+            listContainer.innerHTML = '';
+
+            const infoContainer = document.getElementById('scheduledFightInfo');
+            if (gameState.scheduledFight) {
+                infoContainer.innerText = `Ваш бой: против ${getFighterName(gameState.scheduledFight.opponentId)} на UFC ${gameState.scheduledFight.ufcNumber}`;
+            } else {
+                infoContainer.innerText = "У вас нет запланированных боев.";
+            }
+
+            const roster = gameState.rosters[weightClass];
+            roster.sort((a, b) => a.rank - b.rank);
+
+            roster.forEach(fighter => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                if (fighter.rank === 0) item.classList.add('champion');
+                if (fighter.isPlayer) item.classList.add('player');
+
+                const rankText = fighter.rank === 0 ? "🏆 ЧЕМПИОН" : `#${fighter.rank}`;
+                let actionHtml = '';
+                
+                if (gameState.player.weightClass === weightClass && !fighter.isPlayer) {
+                    const rankDiff = Math.abs(gameState.player.rank - fighter.rank);
+                    const canChallenge = rankDiff <= 2 && !gameState.scheduledFight;
+                    actionHtml = `<button class="challenge-btn" ${canChallenge ? '' : 'disabled'} onclick="openChallengeModal('${fighter.id}')">Вызвать</button>`;
+                }
+
+                item.innerHTML = `
+                    <div>
+                        <span style="color: var(--accent-color); font-weight:bold; margin-right: 10px;">${rankText}</span>
+                        <span class="rank-name">${fighter.name}</span>
+                        <span class="rank-record">(${fighter.record.win}-${fighter.record.loss})</span>
+                    </div>
+                    ${actionHtml}
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function getFighterName(id) {
+            for (let wc in gameState.rosters) {
+                let found = gameState.rosters[wc].find(f => f.id === id);
+                if (found) return found.name;
+            }
+            return "Неизвестный боец";
+        }
+
+        function openChallengeModal(opponentId) {
+            let opponent = gameState.rosters[gameState.player.weightClass].find(f => f.id === opponentId);
+            const card1 = gameState.currentUfcNumber + 1;
+            const card2 = gameState.currentUfcNumber + 2;
+            const card3 = gameState.currentUfcNumber + 3;
+
+            document.getElementById('modalTitle').innerText = "Вызов бойца";
+            document.getElementById('modalText').innerHTML = `
+                Вы вызываете <b>${opponent.name}</b>.<br><br>
+                Выберите турнир:
+                <select id="fightCardSelect" class="select-card-dropdown" style="margin-top:10px;">
+                    <option value="${card1}">UFC ${card1}</option>
+                    <option value="${card2}">UFC ${card2}</option>
+                    <option value="${card3}">UFC ${card3}</option>
+                </select>
+            `;
+            
+            const buttonsContainer = document.getElementById('modalButtons');
+            buttonsContainer.innerHTML = '';
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'btn-modal confirm';
+            confirmBtn.innerText = 'Подписать контракт';
+            confirmBtn.onclick = function() {
+                const selectedCard = parseInt(document.getElementById('fightCardSelect').value);
+                gameState.scheduledFight = { opponentId: opponentId, ufcNumber: selectedCard, weightClass: gameState.player.weightClass };
+                saveGame();
+                closeModal();
+                if (document.getElementById('screenArena').classList.contains('active')) renderArena(gameState.player.weightClass);
+                openModal("Контракт подписан", `Поединок назначен на UFC ${selectedCard}!`);
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn-modal cancel';
+            cancelBtn.innerText = 'Отмена';
+            cancelBtn.onclick = closeModal;
+            
+            buttonsContainer.appendChild(confirmBtn);
+            buttonsContainer.appendChild(cancelBtn);
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function getRandomMethod() {
+            const methods = [
+                "KO (Нокаут в 1 раунде)", "TKO (Остановка рефери во 2 раунде)", 
+                "Submission (Гильотина в 3 раунде)", "Submission (Рычаг локтя)", 
+                "Единогласным решением судей (UD)", "Раздельным решением судей (SD)"
+            ];
+            return methods[Math.floor(Math.random() * methods.length)];
+        }
+
+        function executeFight() {
+            const fight = gameState.scheduledFight;
+            gameState.scheduledFight = null;
+
+            const opponent = gameState.rosters[fight.weightClass].find(f => f.id === fight.opponentId);
+            const limit = WEIGHT_LIMITS[fight.weightClass];
+
+            showScreen('mainMenu');
+
+            if (gameState.player.weight > limit) {
+                gameState.player.ready = Math.max(0, gameState.player.ready - 20);
+                gameState.player.hype = Math.max(0, gameState.player.hype - 15);
+                
+                gameState.history.unshift({
+                    event: `UFC ${fight.ufcNumber}`, opponent: opponent.name, result: 'Отменён',
+                    details: `Провал весогонки (${gameState.player.weight}кг при лимите ${limit}кг)`
+                });
+                saveGame();
+                openModal("🚨 БОЙ ОТМЕНЕН!", `Вы провалили взвешивание! Ваш вес: ${gameState.player.weight} кг (Лимит: ${limit} кг).`);
+                return;
+            }
+
+            const playerPower = (gameState.player.skills.box + gameState.player.skills.wrestling) * (gameState.player.ready / 100);
+            const opponentBasePower = 160 - (opponent.rank * 7);
+            const opponentPower = opponentBasePower * (0.8 + Math.random() * 0.4);
+
+            let playerWin = playerPower >= opponentPower;
+            let method = getRandomMethod();
+
+            if (playerWin) {
+                gameState.player.record.win += 1;
+                opponent.record.loss += 1;
+                gameState.player.hype += 25;
+                
+                if (opponent.rank < gameState.player.rank) {
+                    const playerOldRank = gameState.player.rank;
+                    const opponentOldRank = opponent.rank;
+                    gameState.rosters[fight.weightClass].forEach(f => {
+                        if (f.rank >= opponentOldRank && f.rank < playerOldRank && !f.isPlayer) f.rank += 1;
+                    });
+                    gameState.player.rank = opponentOldRank;
+                }
+
+                openModal("🔥 ВРЕМЯ БОЯ: UFC " + fight.ufcNumber, `
+                    <div style="border: 2px solid #4caf50; padding:15px; border-radius:6px; background:#1b2e1c;">
+                        <h3 style="color:#4caf50; margin-bottom:10px;">ПОБЕДА ИГРОКА!</h3>
+                        <p>Вы одолели бойца <b>${opponent.name}</b></p>
+                        <p style="margin-top:10px; font-style:italic;">Способ: ${method}</p>
+                        <p style="margin-top:10px; font-weight:bold;">Ваш новый ранг: #${gameState.player.rank === 0 ? "🏆 ЧЕМПИОН" : gameState.player.rank}</p>
+                    </div>
+                `);
+            } else {
+                gameState.player.record.loss += 1;
+                opponent.record.win += 1;
+                gameState.player.hype = Math.max(0, gameState.player.hype - 10);
+
+                openModal("🔥 ВРЕМЯ БОЯ: UFC " + fight.ufcNumber, `
+                    <div style="border: 2px solid #f44336; padding:15px; border-radius:6px; background:#2e1b1b;">
+                        <h3 style="color:#f44336; margin-bottom:10px;">ПОРАЖЕНИЕ...</h3>
+                        <p>Победитель поединка: <b>${opponent.name}</b></p>
+                        <p style="margin-top:10px; font-style:italic;">Способ: ${method}</p>
+                    </div>
+                `);
+            }
+
+            gameState.player.ready = Math.max(10, gameState.player.ready - 40);
+            gameState.history.unshift({
+                event: `UFC ${fight.ufcNumber}`, opponent: opponent.name,
+                result: playerWin ? 'Победа' : 'Поражение', details: `Завершено методом: ${method}`
+            });
+            
+            syncPlayerInRoster();
+            saveGame();
+            updateTopBar();
+        }
+
+        function showOfficeSub(subTab) {
+            document.getElementById('tab-profile').classList.remove('active');
+            document.getElementById('tab-history').classList.remove('active');
+            document.getElementById('tab-settings').classList.remove('active');
+            document.getElementById('officeProfile').style.display = 'none';
+            document.getElementById('officeHistory').style.display = 'none';
+            document.getElementById('officeSettings').style.display = 'none';
+
+            document.getElementById(`tab-${subTab}`).classList.add('active');
+
+            if (subTab === 'profile') {
+                document.getElementById('officeProfile').style.display = 'grid';
+                document.getElementById('profName').innerText = gameState.player.name;
+                document.getElementById('profClass').innerText = WEIGHT_NAMES[gameState.player.weightClass];
+                document.getElementById('profWeight').innerText = gameState.player.weight;
+                document.getElementById('profRank').innerText = gameState.player.rank === 0 ? "🏆 Чемпион" : `#${gameState.player.rank}`;
+                document.getElementById('profRecord').innerText = `${gameState.player.record.win} - ${gameState.player.record.loss}`;
+                document.getElementById('profBox').innerText = gameState.player.skills.box;
+                document.getElementById('profWrestle').innerText = gameState.player.skills.wrestling;
+                document.getElementById('profReady').innerText = gameState.player.ready;
+                document.getElementById('profHype').innerText = gameState.player.hype;
+                document.getElementById('profKind').innerText = gameState.player.kind;
+            } else if (subTab === 'history') {
+                const histCont = document.getElementById('officeHistory');
+                histCont.style.display = 'flex';
+                histCont.innerHTML = '';
+
+                if (gameState.history.length === 0) {
+                    histCont.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding:20px;">Нет боев.</p>';
+                    return;
+                }
+
+                gameState.history.forEach(item => {
+                    const div = document.createElement('div');
+                    let resClass = item.result === 'Победа' ? 'win' : (item.result === 'Поражение' ? 'loss' : 'canceled');
+                    div.className = `history-item ${resClass}`;
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-weight:bold;">
+                            <span>${item.event} - ${item.opponent}</span>
+                            <span>${item.result}</span>
+                        </div>
+                        <div style="font-size:14px; color: var(--text-muted);">${item.details}</div>
+                    `;
+                    histCont.appendChild(div);
+                });
+            } else if (subTab === 'settings') {
+                document.getElementById('officeSettings').style.display = 'block';
+            }
+        }
+
+        function confirmDeleteCareer() {
+            openModal("Внимание!", "Удалить карьеру?", true, function() {
+                localStorage.removeItem('ufc_career_save');
+                gameState = {};
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
