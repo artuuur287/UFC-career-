@@ -678,16 +678,16 @@
             createTeam() {
                 const tName = document.getElementById('input-team-name').value.trim();
                 if (!tName) { alert("Укажите название клуба!"); return; }
-                if (state.player.wallet < 2000) { alert("Нужно $2,000 для регистрации!"); return; }
+                if (state.player.wallet < 2000) { alert("Нужно $20,000 для регистрации!"); return; }
                 
-                state.player.wallet -= 2000; state.team = { name: tName, members: [] };
+                state.player.wallet -= 20000; state.team = { name: tName, members: [] };
                 FighterManager.saveToStorage(); FighterManager.updateHUD(); this.updateHubCard(); this.openTeamScreen();
             },
             updateHubCard() {
                 const txt = document.getElementById('team-info-text');
                 if (state.team) {
                     txt.innerHTML = `Клуб: <b>${state.team.name}</b> | Бойцов: ${state.team.members.length} | Еженедельный чек: +$${state.team.members.length * 500}`;
-                } else { txt.innerText = "У вас пока нет своего Бойцовского Клуба. Зарегистрируйте его за $2,000."; }
+                } else { txt.innerText = "У вас пока нет своего Бойцовского Клуба. Зарегистрируйте его за $20,000."; }
             },
             recruit(div, fName, fRank) {
                 if (!state.team) {
@@ -707,7 +707,7 @@
 
                 if (state.player.wallet < 1500) {
                     document.getElementById('alert-title').innerText = "Недостаточно средств";
-                    document.getElementById('alert-text').innerText = "Стоимость трансфера бойца составляет $1,500.";
+                    document.getElementById('alert-text').innerText = "Стоимость трансфера бойца составляет $6,500.";
                     ModalManager.open('modal-alert'); return;
                 }
 
@@ -715,7 +715,7 @@
                 if (fObj) {
                     fObj.hired = true; let pwr = fObj.boxing + fObj.wrestling + fObj.strength + fObj.stamina + fObj.speed;
                     let divRus = div === 'lightweight' ? 'Легкий' : div === 'middleweight' ? 'Средний' : 'Тяжелый';
-                    state.player.wallet -= 1500; state.team.members.push({ name: fObj.name, divKey: div, divText: divRus, power: pwr });
+                    state.player.wallet -= 6500; state.team.members.push({ name: fObj.name, divKey: div, divText: divRus, power: pwr });
                     FighterManager.saveToStorage(); FighterManager.updateHUD(); this.updateHubCard(); ArenaManager.render();
                 }
             }
@@ -733,8 +733,9 @@
 
         const PressManager = {
             pool: [
-                { q: "Журналист: Ваш оппонент заявляет, что вы до жути боитесь его. Что ответите?", a1: "Ха-ха, Воздух гоняет", a2: "Он отличный боец, но я готов ко всему", r1: { hype: 10, kind: -5 }, r2: { hype: 2, kind: 15 } },
-                { q: "Джо Роган: Какие у вас планы в случае победы на ближайшем турнире?", a1: "Я заберу пояс!", a2: "Шаг за шагом двигаться к вершине дивизиона", r1: { hype: 15, kind: -10 }, r2: { hype: 2, kind: 15 } }
+                { q: "Журналист: Ваш оппонент заявляет, что вы до жути боитесь его. Что ответите?", a1: "Ха-ха, Воздух гоняет", a2: "Он отличный боец, но я готов ко всему", r1: { hype: 10, kind: -5 }, r2: { hype: -5, kind: 10 } },
+                { q: "Ваш соперник: Ты не сильный боец, не знаю как вообще тебя подписали в ЮФС", a1: "Не смей говорить обо мне, иначе я убью тебя до боя", a2: "Не думаю что я слабыц боец, в бою всё покажу", r1: { hype: 10, kind: -10 }, r2: { hype: -10, kind: 10 } },
+                { q: "Джо Роган: Какие у вас планы в случае победы на ближайшем турнире?", a1: "Я заберу этот грёбанный пояс!", a2: "Шаг за шагом двигаться к вершине дивизиона", r1: { hype: 10, kind: -5 }, r2: { hype: -5, kind: 10 } }
             ],
             openPress() {
                 if (!state.scheduledFight) {
@@ -825,12 +826,12 @@
             tacticsImpact: { strike: { advantage: "clinch" }, wrestle: { advantage: "defend" }, clinch: { advantage: "wrestle" }, defend: { advantage: "strike" } },
             textQueue: [], isPrinting: false,
             fightMoments: {
-                strike: ["пробивает тяжелейший оверхенд точно в челюсть!", "взрывает комбинацию рук, пробивая защиту соперника!", "наносит жесткий мидл-кик по печени!"],
-                wrestle: ["делает проход в ноги и проводит амплитудный тейкдаун!", "забирает позицию бэк-контроля и обрушивает хаммерфисты!", "уверенно доминирует на настиле в фулл-маунте!"],
-                clinch: ["прижимает соперника к сетке октагона, нанося удары локтями!", "контролирует оппонента в глухом замке, забирая силы!"],
-                defend: ["технично уклоняется от серии опасных ударов!", "разрывает дистанцию клинча, уходя на безопасное расстояние!", "своевременно блокирует попытку прохода в ноги!"],
-                finishKO: ["Встречный сокрушительный хук! Соперник падает без сознания! Это глухой нокаут!", "Мощный апперкот! Рефери мгновенно вмешивается и останавливает бой!"],
-                finishSUB: ["Захват шеи невероятно плотный... Есть сдача! Победа удушающим приемом!", "Ловит кисть на болевой! Соперник сигнализирует о сдаче ударами по канвасу!"]
+                strike: ["пробивает тяжелейший оверхенд точно в челюсть!", "взрывает комбинацию рук, пробивая защиту соперника!", "наносит жесткий мидл-кик по печени!", "отлично работает джебами", "видит момент и наносит мощный удар! соперник в нокдауне", "наносит неожиданный хай-кик", "делает резкий лоу-кик"],
+                wrestle: ["делает проход в ноги и проводит амплитудный тейкдаун!", "забирает позицию бокового-контроля и обрушивает серию ударов локтями", "уверенно доминирует на настиле в фулл-маунте!", "проводит тейкадун",],
+                clinch: ["прижимает соперника к сетке октагона, нанося удары локтями!", "контролирует оппонента в глухом замке, забирая силы!","заходит в клинч, там же пробивает много ударов по корпусу"],
+                defend: ["технично уклоняется от серии опасных ударов и сам успевает нанести два джеба", "наносит контр атакующий джеб+хук, соперник пошатнуся", "блокирует попытку прохода в ноги и успевает сделать 2 удара", "отлично защищается от серии ударов и отправляет сперника в нокдаун после мощного контр-хука"],
+                finishKO: ["Встречный сокрушительный хук! Соперник падает без сознания! Это глухой нокаут!", "Мощный апперкот! Рефери мгновенно вмешивается и останавливает бой!", "наносит серию мощнейший ударов, судья останавливает бой"],
+                finishSUB: ["Захват шеи невероятно плотный... Есть сдача! Победа удушающим приемом!", "Делает болевой на руку! соперник стучит по канвасу!", "Забрал спину соперника и делает удушающий приём! суперник сдаётся!"]
             },
             simulateAiCard() {
                 let logLines = []; const divisions = ['lightweight', 'middleweight', 'heavyweight'];
@@ -868,7 +869,7 @@
                 this.textQueue = []; document.getElementById('fight-log-screen').innerHTML = "";
                 this.queueLog(`📊 СОБЫТИЕ UFC ${sf.cardNum} НАЧАЛОСЬ!`, "system");
                 this.simulateAiCard().forEach(l => this.queueLog(l, "system"));
-                this.queueLog(`\n🔊 А ТЕПЕРЬ — ВРЕМЯ ГЛАВНОГО БОЯ! ВСТРЕЧАЙТЕ!`, "system");
+                this.queueLog(`\n🔊 А ТЕПЕРЬ — ВРЕМЯ ВАШЕГО ВЫСТУПЛЕНИЯ`, "system");
                 ModalManager.open('modal-fight-arena'); this.startPrinting(() => { this.nextRoundTactics(); });
             },
             nextRoundTactics() {
@@ -880,7 +881,7 @@
             selectTactic(pTactic) {
                 document.getElementById('tactics-selector').style.display = "none";
                 const p = state.player; const e = this.enemyObj;
-                let eTactic = ["strike","wrestle","clinch","defend"][Math.floor(Math.random()*4)];
+                let eTactic = ["Стойка","Борьба","Клинч","От защиты"][Math.floor(Math.random()*4)];
                 
                 this.queueLog(`\n--- РАУНД ${this.currentRound} ---`, "system");
                 let pBonus = this.tacticsImpact[pTactic].advantage === eTactic ? 1.3 : 1;
