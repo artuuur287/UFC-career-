@@ -801,20 +801,17 @@
                     listContainer.appendChild(row);
                 });
             },
-
-            openChallenge(enemyName, enemyRank) {
+                      openChallenge(enemyName, enemyRank) {
                 document.getElementById('challenge-target-text').innerHTML = `Заключение контракта на бой против <b>${enemyName}</b>.`;
                 
                 const selectCard = document.getElementById('select-card');
-                const currentNum = Number(state.currentUfcNumber);
-                
-                selectCard.min = currentNum + 1;
-                selectCard.value = currentNum + 1;
+                selectCard.min = state.currentUfcNumber + 1;
+                selectCard.value = state.currentUfcNumber + 1;
 
                 document.getElementById('btn-confirm-challenge').onclick = () => {
                     const chosenCard = parseInt(selectCard.value);
-                    if (isNaN(chosenCard) || chosenCard <= currentNum) {
-                        alert(`Пожалуйста, введите корректный номер турнира (минимум: ${currentNum + 1})`);
+                    if (isNaN(chosenCard) || chosenCard <= state.currentUfcNumber) {
+                        alert(`Пожалуйста, введите корректный номер турнира (минимум: ${state.currentUfcNumber + 1})`);
                         return;
                     }
                     state.scheduledFight = { 
@@ -829,7 +826,7 @@
                     this.render();
                 };
                 ModalManager.open('modal-challenge');
-            }
+        }
         };
                         
         const FightEngine = {
