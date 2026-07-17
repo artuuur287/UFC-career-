@@ -801,26 +801,37 @@
                     listContainer.appendChild(row);
                 });
             },
-            openChallenge(enemyName, enemyRank) {
+
+            OpenChallenge(enemyName, enemyRank) {
                 document.getElementById('challenge-target-text').innerHTML = `Заключение контракта на бой против <b>${enemyName}</b>.`;
                 
                 const selectCard = document.getElementById('select-card');
-                selectCard.min = state.currentUfcNumber + 1;
-                selectCard.value = state.currentUfcNumber + 1;
+                const currentNum = Number(state.currentUfcNumber);
+                
+                selectCard.min = currentNum + 1;
+                selectCard.value = currentNum + 1;
 
                 document.getElementById('btn-confirm-challenge').onclick = () => {
                     const chosenCard = parseInt(selectCard.value);
-                    if (isNaN(chosenCard) || chosenCard <= state.currentUfcNumber) {
-                        alert(`Пожалуйста, введите корректный номер турнира (минимум: ${state.currentUfcNumber + 1})`);
+                    if (isNaN(chosenCard) || chosenCard <= currentNum) {
+                        alert(`Пожалуйста, введите корректный номер турнира (минимум: ${currentNum + 1})`);
                         return;
                     }
-                    state.scheduledFight = { cardNum: chosenCard, opponentName: enemyName, opponentRank: enemyRank, division: state.player.division };
-                    ModalManager.close('modal-challenge'); FighterManager.saveToStorage(); FighterManager.updateHUD(); this.render();
+                    state.scheduledFight = { 
+                        cardNum: chosenCard, 
+                        opponentName: enemyName, 
+                        opponentRank: enemyRank, 
+                        division: state.player.division 
+                    };
+                    ModalManager.close('modal-challenge'); 
+                    FighterManager.saveToStorage(); 
+                    FighterManager.updateHUD(); 
+                    this.render();
                 };
                 ModalManager.open('modal-challenge');
             }
         };
-
+                        
         const FightEngine = {
             currentRound: 1, playerTotalScore: 0, enemyTotalScore: 0, enemyObj: null, isFinishedEarly: false,
             tacticsImpact: { strike: { advantage: "clinch" }, wrestle: { advantage: "defend" }, clinch: { advantage: "wrestle" }, defend: { advantage: "strike" } },
